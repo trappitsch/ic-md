@@ -2,7 +2,7 @@
 
 //! Driver for the iC-MD quadrature counter.
 //! Built fully in Rust, uses [embedded_hal] and [device_driver].
-//!
+
 use core::{fmt::Debug, result::Result};
 use embedded_hal::spi::SpiDevice;
 
@@ -62,15 +62,15 @@ impl<Spi: SpiDevice> IcMd<Spi> {
                 self.device.read_cnt_cfg_1().read()?.cnt_0(),
                 self.device.read_cnt_cfg_1().read()?.cnt_1(),
             )),
-            CntCfg::Cnt1Bit48 => {
-                Ok(CounterCount::Cnt1Bit48(self.device.read_cnt_cfg_2().read()?.cnt_0()))
-            }
-            CntCfg::Cnt1Bit16 => {
-                Ok(CounterCount::Cnt1Bit16(self.device.read_cnt_cfg_3().read()?.cnt_0()))
-            }
-            CntCfg::Cnt1Bit32 => {
-                Ok(CounterCount::Cnt1Bit32(self.device.read_cnt_cfg_4().read()?.cnt_0()))
-            }
+            CntCfg::Cnt1Bit48 => Ok(CounterCount::Cnt1Bit48(
+                self.device.read_cnt_cfg_2().read()?.cnt_0(),
+            )),
+            CntCfg::Cnt1Bit16 => Ok(CounterCount::Cnt1Bit16(
+                self.device.read_cnt_cfg_3().read()?.cnt_0(),
+            )),
+            CntCfg::Cnt1Bit32 => Ok(CounterCount::Cnt1Bit32(
+                self.device.read_cnt_cfg_4().read()?.cnt_0(),
+            )),
             CntCfg::Cnt2Bit32Bit16 => Ok(CounterCount::Cnt2Bit32Bit16(
                 self.device.read_cnt_cfg_5().read()?.cnt_0(),
                 self.device.read_cnt_cfg_5().read()?.cnt_1(),

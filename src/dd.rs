@@ -128,7 +128,7 @@ device_driver::create_device! {
             nwarn: bool = 6,
         },
         /// Read the 16 bit and 16 bit counter configuration, 16+16+2 bits to read (5 bytes)
-        /// This corresponds to counter configuration `0b110`. 
+        /// This corresponds to counter configuration `0b110`.
         register ReadCntCfg6 {
             type Access = RO;
             type ByteOrder = BE;
@@ -144,7 +144,7 @@ device_driver::create_device! {
             nwarn: bool = 6,
         },
         /// Read the 3 x 16 bit counter configuration, 16+16+16+2 bits to read (7 bytes)
-        /// This corresponds to counter configuration `0b111`. 
+        /// This corresponds to counter configuration `0b111`.
         register ReadCntCfg7 {
             type Access = RO;
             type ByteOrder = BE;
