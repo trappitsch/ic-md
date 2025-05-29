@@ -10,34 +10,13 @@ device_driver::create_device! {
         }
         /// Counter configuration
         /// The iC-MD can be configured for 1 up to 3 channels with counter lengths of 16 to 48
-        /// bits.
-        /// The counter configuration is selected by the CntCfg enum.
-        ///
-        /// If you enable the `defmt` feature, this enum will contain a `defmt::Format`
-        /// implementation for logging the current configuration.
+        /// bits. Here, the counter configuration is selected as a u8 value. The higher-level
+        /// driver takes care of converting from a meaningful configuration to the 8-bit value.
         register CounterConfiguration {
             type Access = RW;
             const ADDRESS = 0x00;
             const SIZE_BITS = 8;
-            value: uint as try enum CntCfg {
-                /// Counter 0 = 24 bit; 1 counter; TTL, RS422, or LVDS
-                Cnt1Bit24 = 0b00000000,
-                /// Counter 0 = 24 bit and Counter 1 = 24 bit; 2 counters; TTL only
-                Cnt2Bit24 = 0b00000001,
-                /// Counter 0 = 48 bit; 1 counter; TTL, RS422, or LVDS
-                Cnt1Bit48 = 0b00000010,
-                /// Counter 0 = 16 bit; 1 counter; TTL, RS422, or LVDS
-                Cnt1Bit16 = 0b00000011,
-                /// Counter 0 = 32 bit; 1 counter; TTL, RS422, or LVDS
-                Cnt1Bit32 = 0b00000100,
-                /// Counter 0 = 32 bit and Counter 1 = 16 bit; 2 counters; TTL only
-                Cnt2Bit32Bit16 = 0b00000101,
-                /// Counter 0 = 16 bit and Counter 1 = 16 bit; 2 counters; TTL only
-                Cnt2Bit16 = 0b00000110,
-                /// Counter 0 = 16 bit, Counter 1 = 16 bit, and Counter 2 = 16 bit; 3 counters; TTL
-                /// only
-                Cnt3Bit16 = 0b00000111,
-              } = 0..8,
+            value: uint = 0..8,
         },
         /// Read the 24 bit counter configuration, 24+2 bits to read (4 bytes)
         /// This corresponds to counter configuration `0b000`.
@@ -161,6 +140,17 @@ device_driver::create_device! {
             nerr: bool = 7,
             nwarn: bool = 6,
         },
+        /// Read the references registers 24 bits.
+        /// TODO: It is unclear if this works, as I assume the address for reading is
+        /// auto-incremented as when reading the data. This should be tested once the actual
+        /// hardware setup is available with an encoder connected.
+        register ReferenceCounter {
+            type Access = RO;
+            type ByteOrder = BE;
+            const ADDRESS = 0x10;
+            const SIZE_BITS = 24;
+            value: int = 0..24,
+        },
         /// Instruction byte (write only)
         /// Allows writing of the instruction bytes. When one of these bits is set to 1, the
         /// corresponding instruction is executed and the bit set back to zero, except in the
@@ -282,23 +272,6 @@ device_driver::create_device! {
 
     }
 }
-
-// HACK: Delete once new enum works
-// #[cfg(feature = "defmt")]
-// impl defmt::Format for CntCfg {
-//     fn format(&self, fmt: defmt::Formatter) {
-//         match self {
-//             CntCfg::Cnt1Bit24 => defmt::write!(fmt, "Cnt1Bit24"),
-//             CntCfg::Cnt2Bit24 => defmt::write!(fmt, "Cnt2Bit24"),
-//             CntCfg::Cnt1Bit48 => defmt::write!(fmt, "Cnt1Bit48"),
-//             CntCfg::Cnt1Bit16 => defmt::write!(fmt, "Cnt1Bit16"),
-//             CntCfg::Cnt1Bit32 => defmt::write!(fmt, "Cnt1Bit32"),
-//             CntCfg::Cnt2Bit32Bit16 => defmt::write!(fmt, "Cnt2Bit32Bit16"),
-//             CntCfg::Cnt2Bit16 => defmt::write!(fmt, "Cnt2Bit16"),
-//             CntCfg::Cnt3Bit16 => defmt::write!(fmt, "Cnt3Bit16"),
-//         }
-//     }
-// }
 
 /// The SPI Device wrapper interface to the driver
 #[derive(Debug)]

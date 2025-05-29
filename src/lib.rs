@@ -2,6 +2,39 @@
 
 //! Driver for the iC-MD quadrature counter.
 //! Built fully in Rust, uses [embedded_hal] and [device_driver].
+//!
+//! # Introduction
+//!
+//! The `IcMd` struct provides a high-level interface to interact with the iC-MD quadrature
+//! counter. However, you can also access the underlying device driver directly via the `device`
+//! field. Please read the device driver documentation for more information on what to expect
+//! when interfacing with the device driver directly.
+//! This low-level access is a temporary solution until the high-level interface is fully
+//! developped. When this well be the case is unclear. If you are interested in it, please let me
+//! know and I'm happy to prioritize the high-level features that are interesting to you.
+//!
+//! # Limitations
+//!
+//! The following features are currently only accessible via the low-level interface:
+//!
+//! - Reference register readout: It is unclear if this currently works, see code comment.
+//!
+//! The following features are currently not yet implemented:
+//!
+//! - Input configuration: You can currently not specify the input configuration.
+//!   - Differential or TTL inputs (Address 0x01, bit 7)
+//!   - Configuration to have Z signal clear counters 0 and/or 1 (Address 0x01, bits 5 and 6)
+//!   - Z signal configuration (Address 0x01, bits 3 and 4)
+//!   - Touch probe and AB registers (Address 0x01, bits 1 and 2)
+//!   - Differential input configuration selection (RS-422 (default) or LVDS) (Address 0x03, bit 7)
+//!
+//! # Example Usage
+//!
+//! TODO
+//!
+//! # Further help
+//!
+//! TODO, but there should be full tests that help with understanding how to use the driver.
 
 use core::{fmt::Debug, result::Result};
 use embedded_hal::spi::SpiDevice;
@@ -9,7 +42,6 @@ use embedded_hal::spi::SpiDevice;
 use dd::{Device, DeviceError, DeviceInterface};
 
 pub use configs::*;
-pub use dd::CntCfg;
 
 pub mod configs;
 pub mod dd;
@@ -19,8 +51,12 @@ pub mod dd;
 /// You are then yourself responsible for reading the correct counter configurations.
 #[derive(Debug)]
 pub struct IcMd<Spi> {
+    /// Provides acces to the underlying device driver.
     pub device: Device<DeviceInterface<Spi>>,
+    /// Configuration of the counter, set only prior to calling `init()`.
     counter_config: CntCfg,
+    /// Status of the device (error and warning flags). Read only, updated when reading the
+    /// counter.
     device_status: DeviceStatus,
     actuator_status: ActuatorStatus,
 }
@@ -31,7 +67,7 @@ impl<Spi: SpiDevice> IcMd<Spi> {
     pub fn new(spi: Spi) -> Self {
         Self {
             device: Device::new(DeviceInterface::new(spi)),
-            counter_config: CntCfg::Cnt1Bit48,
+            counter_config: CntCfg::Cnt1Bit48(CntSetup::default()),
             actuator_status: ActuatorStatus::default(),
             device_status: DeviceStatus::default(),
         }
@@ -41,7 +77,8 @@ impl<Spi: SpiDevice> IcMd<Spi> {
     pub fn init(&mut self) -> Result<(), DeviceError<Spi::Error>> {
         self.device
             .counter_configuration()
-            .write(|reg| reg.set_value(self.counter_config))?;
+            .write(|reg| reg.set_value(self.counter_config.into()))?;
+
         Ok(())
     }
 
@@ -67,58 +104,83 @@ impl<Spi: SpiDevice> IcMd<Spi> {
         Ok(())
     }
 
-    /// Touch probe instruction
-    /// Load touch probe 2 with touch probe 1 value and touch probe 1 wiht ABCNT value.
-    pub fn touch_probe_instruction(&mut self) -> Result<(), DeviceError<Spi::Error>> {
-        let act0 = &self.actuator_status.act0;
-        let act1 = &self.actuator_status.act1;
-        self.device.instruction_byte().write(|reg| {
-            reg.set_tp(true);
-            reg.set_act_0(act0.into());
-            reg.set_act_1(act1.into());
-        })?;
-        Ok(())
+    /// Get current device status.
+    /// This is a cached value that is updated when reading the counter. It contains the error and
+    /// warning flags of the device. For a full device status, use `get_full_device_status()`.
+    pub fn get_device_status(&self) -> DeviceStatus {
+        self.device_status
+    }
+
+    /// Get the full device status by reading all the status registers.
+    /// This will reset many of the status bits to wait for the next event, problem, issue to
+    /// occur.
+    pub fn get_full_device_status(&mut self) -> Result<FullDeviceStatus, DeviceError<Spi::Error>> {
+        let status0 = self.device.status_0().read()?;
+        let status1 = self.device.status_1().read()?;
+        let status2 = self.device.status_2().read()?;
+
+        Ok(FullDeviceStatus {
+            cnt0_overflow: status0.ovf_0().into(),
+            cnt0_aberr: status0.ab_err_0().into(),
+            cnt0_zero: status0.zero_0().into(),
+            cnt1_overflow: status1.ovf_1().into(),
+            cnt1_aberr: status1.ab_err_1().into(),
+            cnt1_zero: status1.zero_1().into(),
+            cnt2_overflow: status2.ovf_2().into(),
+            cnt2_aberr: status2.ab_err_2().into(),
+            cnt2_zero: status2.zero_2().into(),
+            power_status: status0.p_dwn().into(),
+            ref_reg_status: status0.r_val().into(),
+            upd_reg_status: status0.upd_val().into(),
+            ref_cnt_status: status0.ovf_ref().into(),
+            ext_err_status: status1.ext_err().into(),
+            ext_warn_status: status1.ext_warn().into(),
+            comm_status: status1.com_col().into(),
+            tp_status: status0.tp_val().into(),
+            tpi_status: status1.tps().into(),
+            ssi_enabled: status2.en_ssi().into(),
+        })
     }
 
     /// Read the current counter value and return it.
     pub fn read_counter(&mut self) -> Result<CntCount, DeviceError<Spi::Error>> {
         match self.counter_config {
-            CntCfg::Cnt1Bit24 => {
+            CntCfg::Cnt1Bit24(_) => {
                 let res = self.device.read_cnt_cfg_0().read()?;
                 self.set_device_status(res.nwarn(), res.nerr());
                 Ok(CntCount::Cnt1Bit24(res.cnt_0()))
             }
-            CntCfg::Cnt2Bit24 => {
+            CntCfg::Cnt2Bit24(_, _) => {
                 let res = self.device.read_cnt_cfg_1().read()?;
                 self.set_device_status(res.nwarn(), res.nerr());
                 Ok(CntCount::Cnt2Bit24(res.cnt_0(), res.cnt_1()))
             }
-            CntCfg::Cnt1Bit48 => {
+            CntCfg::Cnt1Bit48(_) => {
                 let res = self.device.read_cnt_cfg_2().read()?;
                 self.set_device_status(res.nwarn(), res.nerr());
                 Ok(CntCount::Cnt1Bit48(res.cnt_0()))
             }
-            CntCfg::Cnt1Bit16 => {
+            CntCfg::Cnt1Bit16(_) => {
                 let res = self.device.read_cnt_cfg_3().read()?;
                 self.set_device_status(res.nwarn(), res.nerr());
                 Ok(CntCount::Cnt1Bit16(res.cnt_0()))
             }
-            CntCfg::Cnt1Bit32 => {
+            CntCfg::Cnt1Bit32(_) => {
                 let res = self.device.read_cnt_cfg_4().read()?;
                 self.set_device_status(res.nwarn(), res.nerr());
                 Ok(CntCount::Cnt1Bit32(res.cnt_0()))
             }
-            CntCfg::Cnt2Bit32Bit16 => {
+            CntCfg::Cnt2Bit32Bit16(_, _) => {
                 let res = self.device.read_cnt_cfg_5().read()?;
                 self.set_device_status(res.nwarn(), res.nerr());
                 Ok(CntCount::Cnt2Bit32Bit16(res.cnt_0(), res.cnt_1()))
             }
-            CntCfg::Cnt2Bit16 => {
+            CntCfg::Cnt2Bit16(_, _) => {
                 let res = self.device.read_cnt_cfg_6().read()?;
                 self.set_device_status(res.nwarn(), res.nerr());
                 Ok(CntCount::Cnt2Bit16(res.cnt_0(), res.cnt_1()))
             }
-            CntCfg::Cnt3Bit16 => {
+            CntCfg::Cnt3Bit16(_, _, _) => {
                 let res = self.device.read_cnt_cfg_7().read()?;
                 self.set_device_status(res.nwarn(), res.nerr());
                 Ok(CntCount::Cnt3Bit16(res.cnt_0(), res.cnt_1(), res.cnt_2()))
@@ -128,11 +190,6 @@ impl<Spi: SpiDevice> IcMd<Spi> {
 
     /// Reset counters to zero.
     /// You can select which counters should be set to zero using the specific arguments.
-    ///
-    /// TODO: Check statement for correctness.
-    /// This routine does not check if the counter you are trying to reset is actually configered.
-    /// If the requested counter is not configured, the reset bit will be sent, but this will
-    /// simply be ignored by the counter.
     ///
     /// # Arguments
     /// * `cnt0`: If true, counter 0 is reset, else not.
@@ -158,16 +215,40 @@ impl<Spi: SpiDevice> IcMd<Spi> {
 
     /// Reset all counters.
     /// Can be used to send reset commands to all counters.
-    ///
-    /// TODO: Check that this does not need to actually take counter config into account!
     pub fn reset_all_counters(&mut self) -> Result<(), DeviceError<Spi::Error>> {
         self.reset_counters(true, true, true)?;
         Ok(())
     }
 
+    /// Touch probe instruction
+    /// Load touch probe 2 with touch probe 1 value and touch probe 1 wiht ABCNT value.
+    pub fn touch_probe_instruction(&mut self) -> Result<(), DeviceError<Spi::Error>> {
+        let act0 = &self.actuator_status.act0;
+        let act1 = &self.actuator_status.act1;
+        self.device.instruction_byte().write(|reg| {
+            reg.set_tp(true);
+            reg.set_act_0(act0.into());
+            reg.set_act_1(act1.into());
+        })?;
+        Ok(())
+    }
+
+    /// Set the counter configuration.
+    /// This should be done prior to calling `init()`.
+    pub fn set_counter_config(&mut self, config: CntCfg) {
+        self.counter_config = config;
+    }
+
     /// Set device status from two bools that were read and passed on to here.
-    fn set_device_status(&mut self, warn_status: bool, err_status: bool) {
-        self.device_status.warning = warn_status.into();
-        self.device_status.error = err_status.into();
+    /// Note taat the inputs are from nerr and nwarn!
+    fn set_device_status(&mut self, nwarn: bool, nerr: bool) {
+        self.device_status.warning = match nwarn {
+            true => WarningStatus::Ok,
+            false => WarningStatus::Warning,
+        };
+        self.device_status.error = match nerr {
+            true => ErrorStatus::Ok,
+            false => ErrorStatus::Error,
+        };
     }
 }
