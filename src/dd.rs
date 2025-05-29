@@ -283,21 +283,22 @@ device_driver::create_device! {
     }
 }
 
-#[cfg(feature = "defmt")]
-impl defmt::Format for CntCfg {
-    fn format(&self, fmt: defmt::Formatter) {
-        match self {
-            CntCfg::Cnt1Bit24 => defmt::write!(fmt, "Cnt1Bit24"),
-            CntCfg::Cnt2Bit24 => defmt::write!(fmt, "Cnt2Bit24"),
-            CntCfg::Cnt1Bit48 => defmt::write!(fmt, "Cnt1Bit48"),
-            CntCfg::Cnt1Bit16 => defmt::write!(fmt, "Cnt1Bit16"),
-            CntCfg::Cnt1Bit32 => defmt::write!(fmt, "Cnt1Bit32"),
-            CntCfg::Cnt2Bit32Bit16 => defmt::write!(fmt, "Cnt2Bit32Bit16"),
-            CntCfg::Cnt2Bit16 => defmt::write!(fmt, "Cnt2Bit16"),
-            CntCfg::Cnt3Bit16 => defmt::write!(fmt, "Cnt3Bit16"),
-        }
-    }
-}
+// HACK: Delete once new enum works
+// #[cfg(feature = "defmt")]
+// impl defmt::Format for CntCfg {
+//     fn format(&self, fmt: defmt::Formatter) {
+//         match self {
+//             CntCfg::Cnt1Bit24 => defmt::write!(fmt, "Cnt1Bit24"),
+//             CntCfg::Cnt2Bit24 => defmt::write!(fmt, "Cnt2Bit24"),
+//             CntCfg::Cnt1Bit48 => defmt::write!(fmt, "Cnt1Bit48"),
+//             CntCfg::Cnt1Bit16 => defmt::write!(fmt, "Cnt1Bit16"),
+//             CntCfg::Cnt1Bit32 => defmt::write!(fmt, "Cnt1Bit32"),
+//             CntCfg::Cnt2Bit32Bit16 => defmt::write!(fmt, "Cnt2Bit32Bit16"),
+//             CntCfg::Cnt2Bit16 => defmt::write!(fmt, "Cnt2Bit16"),
+//             CntCfg::Cnt3Bit16 => defmt::write!(fmt, "Cnt3Bit16"),
+//         }
+//     }
+// }
 
 /// The SPI Device wrapper interface to the driver
 #[derive(Debug)]
