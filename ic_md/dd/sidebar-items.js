@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["field_sets"],"struct":["Device","DeviceError","DeviceInterface"]};

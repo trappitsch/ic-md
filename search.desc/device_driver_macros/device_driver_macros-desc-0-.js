@@ -1,0 +1,1 @@
+searchState.loadedDescShard("device_driver_macros", 0, "Device driver macros crates.io Documentation\nMacro to implement the device driver.")

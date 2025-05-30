@@ -1,0 +1,2 @@
+window.ALL_CRATES = ["anyhow","bitvec","convert_case","device_driver","device_driver_generation","device_driver_macros","either","embedded_hal","embedded_hal_async","embedded_io","embedded_io_async","funty","ic_md","itertools","proc_macro2","quote","radium","syn","tap","unicode_ident","unicode_segmentation","wyz"];
+//{"start":21,"fragment_lengths":[8,9,15,16,27,23,9,15,21,14,20,8,8,12,14,8,9,6,6,16,23,6]}

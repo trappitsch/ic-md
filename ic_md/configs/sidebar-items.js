@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CntCfg","CntCount","CntDirection","CntZSignal","CommunicationStatus","DecodificationStatus","ErrorStatus","InterfaceStatus","OverflowStatus","PinStatus","RegisterStatus","TouchProbeStatus","UndervoltageStatus","WarningStatus","ZeroStatus"],"struct":["ActuatorStatus","CntSetup","DeviceStatus","FullDeviceStatus"]};

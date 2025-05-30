@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["FieldSetValue"],"struct":["CounterConfiguration","InstructionByte","ReadCntCfg0","ReadCntCfg1","ReadCntCfg2","ReadCntCfg3","ReadCntCfg4","ReadCntCfg5","ReadCntCfg6","ReadCntCfg7","ReferenceCounter","Status0","Status1","Status2"]};

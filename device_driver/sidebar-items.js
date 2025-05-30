@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":["create_device"],"struct":["BufferOperation","CommandOperation","ConversionError","RegisterOperation"],"trait":["AsyncBufferInterface","AsyncCommandInterface","AsyncRegisterInterface","BufferInterface","BufferInterfaceError","CommandInterface","RegisterInterface"]};

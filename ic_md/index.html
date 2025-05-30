@@ -1,0 +1,34 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Driver for the iC-MD quadrature counter. Built fully in Rust, uses embedded_hal and device_driver."><title>ic_md - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="ic_md" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../ic_md/index.html">ic_md</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#introduction" title="Introduction">Introduction</a></li><li><a href="#limitations" title="Limitations">Limitations</a></li><li><a href="#example-usage" title="Example Usage">Example Usage</a></li><li><a href="#further-help" title="Further help">Further help</a></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>ic_md</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/ic_md/lib.rs.html#1-254">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Driver for the iC-MD quadrature counter.
+Built fully in Rust, uses <a href="../embedded_hal/index.html" title="mod embedded_hal">embedded_hal</a> and <a href="../device_driver/index.html" title="mod device_driver">device_driver</a>.</p>
+<h2 id="introduction"><a class="doc-anchor" href="#introduction">§</a>Introduction</h2>
+<p>The <code>IcMd</code> struct provides a high-level interface to interact with the iC-MD quadrature
+counter. However, you can also access the underlying device driver directly via the <code>device</code>
+field. Please read the device driver documentation for more information on what to expect
+when interfacing with the device driver directly.
+This low-level access is a temporary solution until the high-level interface is fully
+developped. When this well be the case is unclear. If you are interested in it, please let me
+know and I’m happy to prioritize the high-level features that are interesting to you.</p>
+<h2 id="limitations"><a class="doc-anchor" href="#limitations">§</a>Limitations</h2>
+<p>The following features are currently only accessible via the low-level interface:</p>
+<ul>
+<li>Reference register readout: It is unclear if this currently works, see code comment.</li>
+</ul>
+<p>The following features are currently not yet implemented:</p>
+<ul>
+<li>Input configuration: You can currently not specify the input configuration.
+<ul>
+<li>Differential or TTL inputs (Address 0x01, bit 7)</li>
+<li>Configuration to have Z signal clear counters 0 and/or 1 (Address 0x01, bits 5 and 6)</li>
+<li>Z signal configuration (Address 0x01, bits 3 and 4)</li>
+<li>Touch probe and AB registers (Address 0x01, bits 1 and 2)</li>
+<li>Differential input configuration selection (RS-422 (default) or LVDS) (Address 0x03, bit 7)</li>
+</ul>
+</li>
+</ul>
+<h2 id="example-usage"><a class="doc-anchor" href="#example-usage">§</a>Example Usage</h2>
+<p>TODO</p>
+<h2 id="further-help"><a class="doc-anchor" href="#further-help">§</a>Further help</h2>
+<p>TODO, but there should be full tests that help with understanding how to use the driver.</p>
+</div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><dl class="item-table reexports"><dt><code>pub use <a class="mod" href="configs/index.html" title="mod ic_md::configs">configs</a>::*;</code></dt></dl><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="configs/index.html" title="mod ic_md::configs">configs</a></dt><dt><a class="mod" href="dd/index.html" title="mod ic_md::dd">dd</a></dt></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.IcMd.html" title="struct ic_md::IcMd">IcMd</a></dt><dd>The main driver struct of the crate representing the iC-MD quadrature counter.
+You can also access the underlying device driver directly via the <code>device</code> field.
+You are then yourself responsible for reading the correct counter configurations.</dd></dl></section></div></main></body></html>
