@@ -19,10 +19,49 @@ pub enum CntCount {
     Cnt3Bit16(i16, i16, i16),
 }
 
+impl CntCount {
+    /// Get the value of the counter zero
+    /// If it exists, this will return `Some(value)`. Otherwise it will return `None`. For counter
+    /// zero, this will always exist, as it is always configured.
+    pub fn get_cnt0(&self) -> Option<i64> {
+        match self {
+            CntCount::Cnt1Bit24(val) => Some(*val as i64),
+            CntCount::Cnt2Bit24(val, _) => Some(*val as i64),
+            CntCount::Cnt1Bit48(val) => Some(*val),
+            CntCount::Cnt1Bit16(val) => Some(*val as i64),
+            CntCount::Cnt1Bit32(val) => Some(*val as i64),
+            CntCount::Cnt2Bit32Bit16(val, _) => Some(*val as i64),
+            CntCount::Cnt2Bit16(val, _) => Some(*val as i64),
+            CntCount::Cnt3Bit16(val, _, _) => Some(*val as i64),
+        }
+    }
+
+    /// Get the value of the counter one
+    /// If it exists, this will return `Some(value)`. Otherwise it will return `None`.
+    pub fn get_cnt1(&self) -> Option<i64> {
+        match self {
+            CntCount::Cnt2Bit24(_, val) => Some(*val as i64),
+            CntCount::Cnt2Bit32Bit16(_, val) => Some(*val as i64),
+            CntCount::Cnt2Bit16(_, val) => Some(*val as i64),
+            CntCount::Cnt3Bit16(_, val, _) => Some(*val as i64),
+            _ => None,
+        }
+    }
+
+    /// Get the value of counter two.
+    /// If it exists, this will return `Some(value)`. Otherwise it will return `None`.
+    pub fn get_cnt2(&self) -> Option<i64> {
+        match self {
+            CntCount::Cnt3Bit16(_, _, val) => Some(*val as i64),
+            _ => None,
+        }
+    }
+}
+
 /// Enum to specify the direction in which a counter counts
 /// This enum is used to turn the positive direction of counting around. By default, it is set to
 /// CW for positive counting, but can be set to CCW for positive counting.
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum CntDirection {
     #[default]
@@ -40,7 +79,7 @@ impl From<CntDirection> for u8 {
 }
 
 /// Enum to specify if the Z signal is normal or inverted
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum CntZSignal {
     #[default]
@@ -59,7 +98,7 @@ impl From<CntZSignal> for u8 {
 
 /// Setup for a specific counter.
 /// Use this struct to declare the setup of a specific counter.
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct CntSetup {
     count_direction: CntDirection,
@@ -85,7 +124,7 @@ impl CntSetup {
 ///
 /// If you enable the `defmt` feature, this enum will contain a `defmt::Format`
 /// implementation for logging the current configuration.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum CntCfg {
     /// Counter 0 = 24 bit; 1 counter; TTL, RS422, or LVDS
@@ -168,11 +207,28 @@ impl From<CntCfg> for u8 {
 ///
 /// Note: You are responsible for reading these warnings. Alternatively, you can also query the
 /// connected pins `NWARN` and `NERR`.
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct DeviceStatus {
-    pub warning: WarningStatus,
-    pub error: ErrorStatus,
+    pub(crate) warning: WarningStatus,
+    pub(crate) error: ErrorStatus,
+}
+
+impl DeviceStatus {
+    /// Return `true` if the device has no errors or warnings, false otherwise.
+    pub fn is_ok(&self) -> bool {
+        self.warning == WarningStatus::Ok && self.error == ErrorStatus::Ok
+    }
+
+    /// Get the current warning status.
+    pub fn get_warning(&self) -> WarningStatus {
+        self.warning
+    }
+
+    /// Get the current error status.
+    pub fn get_error(&self) -> ErrorStatus {
+        self.error
+    }
 }
 
 /// Full Device Status
@@ -182,7 +238,7 @@ pub struct DeviceStatus {
 ///
 /// Note: Even if you have only one counter configured, the full device status will still be
 /// reported, i.t., other counters (which don't exist in your setup) will also be reported.
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct FullDeviceStatus {
     /// Overflow of counter 0
@@ -228,7 +284,7 @@ pub struct FullDeviceStatus {
 /// Actuator status.
 /// This struct is used to keep track of the status of the actuator pins. Upon first initialization
 /// they are both set to `PinStatus::Low`. The actuator pins are ACT0 and ACT1.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct ActuatorStatus {
     pub act0: PinStatus,
@@ -237,7 +293,7 @@ pub struct ActuatorStatus {
 
 /// Warning Status
 /// Enum that indicates if a warning has occured or not.
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum WarningStatus {
     #[default]
@@ -256,7 +312,7 @@ impl From<bool> for WarningStatus {
 
 /// Error Status
 /// Enum that indicates if an error has occured or not.
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum ErrorStatus {
     #[default]
@@ -276,7 +332,7 @@ impl From<bool> for ErrorStatus {
 /// Decodification Status
 /// A DecodificationError indicates that either the counting frequency is too high or that
 /// two incremental edges are too close together.
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum DecodificationStatus {
     #[default]
@@ -294,7 +350,7 @@ impl From<bool> for DecodificationStatus {
 }
 
 /// Overflow Status
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum OverflowStatus {
     #[default]
@@ -313,7 +369,7 @@ impl From<bool> for OverflowStatus {
 
 /// Zero Status
 /// This enum indicates if the counter has reached the zero value or not.
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum ZeroStatus {
     #[default]
@@ -334,7 +390,7 @@ impl From<bool> for ZeroStatus {
 /// If VDD falls below the power off supply level, the device is reset and the RAM initialized to
 /// the default value. This status bit indicates that this initialization has taken place (and you
 /// might want to consider re-initializing the device).
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum UndervoltageStatus {
     #[default]
@@ -355,7 +411,7 @@ impl From<bool> for UndervoltageStatus {
 
 /// Register Status
 /// This enum indicates if a register is valid (Ok) or not (Invalid).
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum RegisterStatus {
     #[default]
@@ -375,7 +431,7 @@ impl From<bool> for RegisterStatus {
 /// Touch probe Status
 /// This enum indicates if the TPx registers are not loaded / have not been updated or if new
 /// values were loaded into the them.
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum TouchProbeStatus {
     #[default]
@@ -394,7 +450,7 @@ impl From<bool> for TouchProbeStatus {
 
 /// Communiucatoion Status
 /// This enum indicates if the communication with the device has experienced a collision or not.
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum CommunicationStatus {
     #[default]
@@ -413,7 +469,7 @@ impl From<bool> for CommunicationStatus {
 
 /// Interface Status
 /// This enum indicates if an interface is enabled or disabled.
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum InterfaceStatus {
     #[default]
@@ -432,7 +488,7 @@ impl From<bool> for InterfaceStatus {
 
 /// Status enum for pins.
 /// `PinStatus::High` means that the pin is at VDD, `PinStatus::Low` means that the pin is at GND.
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum PinStatus {
     #[default]

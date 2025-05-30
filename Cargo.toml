@@ -6,12 +6,13 @@ edition = "2024"
 
 [dependencies]
 defmt = { version = "1.0.1", optional = true }
-device-driver = { version = "1.0.4", default-features = false, features = [
-    "dsl",
-] }
+device-driver = { version = "1.0.4", default-features = false, features = [ "dsl" ] }
 embedded-hal = "1"
 embedded-hal-async = "1"
 
 [features]
 defmt = ["dep:defmt"]
+
+[dev-dependencies]
+embedded-hal-mock = "0.11.1"
 
