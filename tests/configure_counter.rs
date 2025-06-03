@@ -11,11 +11,11 @@ use ic_md::IcMd;
 fn test_default_icmd_and_counter_read() {
     // SPI transactions - ignore this if you look for the example
     let expectations = [
-        Transaction::transaction_start(),   // Initialization
-        Transaction::write(0x00), 
+        Transaction::transaction_start(), // Initialization
+        Transaction::write(0x00),
         Transaction::write(0x4E),
         Transaction::transaction_end(),
-        Transaction::transaction_start(),   // Read the counter
+        Transaction::transaction_start(), // Read the counter
         Transaction::write(0x80 | 0x08),
         Transaction::read_vec(vec![0x00, 0x2A, 0x00, 0x0D, 0xC0]),
         Transaction::transaction_end(),
@@ -29,7 +29,7 @@ fn test_default_icmd_and_counter_read() {
 
     // Specify the non-default counter setup
     // Counter zero: Counter clockwise direction and inverted Z signal
-    let cnt0_setup = ic_md::CntSetup::new(ic_md::CntDirection::CCW, ic_md::CntZSignal::Inverted); 
+    let cnt0_setup = ic_md::CntSetup::new(ic_md::CntDirection::CCW, ic_md::CntZSignal::Inverted);
     // Counter one: Clockwise direction and non-inverted Z signal, i.e., default setup
     let cnt1_setup = ic_md::CntSetup::default();
 
@@ -41,7 +41,7 @@ fn test_default_icmd_and_counter_read() {
     icmd.init().unwrap();
 
     // Read out the counter
-    let counter_value = icmd.read_counter().unwrap();  // NWARN is low
+    let counter_value = icmd.read_counter().unwrap(); // NWARN is low
 
     // We can use the get counter methods to access the values. This will return an `Option`
     // containing an `i64` value of the count (if the counter is setup, otherwise `None`).

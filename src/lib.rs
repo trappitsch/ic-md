@@ -8,7 +8,7 @@
 //! **Important Note:**
 //!
 //! This driver is in active development and not yet feature complete. Please see the section below
-//! on Limitations for more details. This driver is currently only available via `git`. 
+//! on Limitations for more details. This driver is currently only available via `git`.
 //!
 //! Any comments are welcome!
 //!
