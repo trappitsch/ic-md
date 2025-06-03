@@ -13,6 +13,10 @@ More information about the iC-MD counter can be found
 
 **This driver is not yet complete and is currently under development.**
 
+Currently, the driver is only available on GitHub and is not yet published to crates.io.
+Thus, the documentation can for now also only be found 
+[here on GitHub](https://trappitsch.github.io/ic-md/ic_md/).
+
 
 ## License
 
