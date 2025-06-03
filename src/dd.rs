@@ -1,3 +1,7 @@
+//! The iC-MD device driver, created with the `device_driver` crate.
+//!
+//! Please refer to the iC-MD datasheet to better understand what each command does.
+
 use core::fmt::Debug;
 
 use embedded_hal::spi::{Operation, SpiDevice};

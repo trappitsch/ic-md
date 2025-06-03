@@ -1,8 +1,9 @@
-// Hold all the configuration and status structs for the device
+//! Module to hold the configuration and status structs for the device
 
 use core::{convert::From, default::Default, fmt::Debug};
 
 /// Represent the counter values for different configurations of the iC-MD quadrature counter.
+///
 /// If more than one counter value is present, the counter values are always in the order of
 /// Counter 0, Counter 1, and Counter 2.
 /// Note: The size of the returned value depends on the configuration of the counter!
@@ -21,6 +22,7 @@ pub enum CntCount {
 
 impl CntCount {
     /// Get the value of the counter zero
+    ///
     /// If it exists, this will return `Some(value)`. Otherwise it will return `None`. For counter
     /// zero, this will always exist, as it is always configured.
     pub fn get_cnt0(&self) -> Option<i64> {
@@ -37,6 +39,7 @@ impl CntCount {
     }
 
     /// Get the value of the counter one
+    ///
     /// If it exists, this will return `Some(value)`. Otherwise it will return `None`.
     pub fn get_cnt1(&self) -> Option<i64> {
         match self {
@@ -49,6 +52,7 @@ impl CntCount {
     }
 
     /// Get the value of counter two.
+    ///
     /// If it exists, this will return `Some(value)`. Otherwise it will return `None`.
     pub fn get_cnt2(&self) -> Option<i64> {
         match self {
@@ -59,6 +63,7 @@ impl CntCount {
 }
 
 /// Enum to specify the direction in which a counter counts
+///
 /// This enum is used to turn the positive direction of counting around. By default, it is set to
 /// CW for positive counting, but can be set to CCW for positive counting.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
@@ -97,6 +102,7 @@ impl From<CntZSignal> for u8 {
 }
 
 /// Setup for a specific counter.
+///
 /// Use this struct to declare the setup of a specific counter.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
@@ -116,6 +122,7 @@ impl CntSetup {
 }
 
 /// Counter configuration
+///
 /// The iC-MD can be configured for 1 up to 3 channels with counter lengths of 16 to 48
 /// bits. Each counter can furthermore be specified to count in clockwise or counterclockwise
 /// direction. Finally, you can also configure if the Z signal is normal or inverted.
@@ -201,6 +208,7 @@ impl From<CntCfg> for u8 {
 }
 
 /// Device Status
+///
 /// This struct describes the status of the device. The variables that indicate if a warning or
 /// error has occured. This status is updated whenever the counters are read, as errors and
 /// warnings are sent along.
@@ -232,6 +240,7 @@ impl DeviceStatus {
 }
 
 /// Full Device Status
+///
 /// This struct contains the full status of the device that is returned when reading the status
 /// registers. For most registers, reading the status will reset the status bits to `Ok` or the
 /// equivalent for the specific status.
@@ -282,6 +291,7 @@ pub struct FullDeviceStatus {
 }
 
 /// Actuator status.
+///
 /// This struct is used to keep track of the status of the actuator pins. Upon first initialization
 /// they are both set to `PinStatus::Low`. The actuator pins are ACT0 and ACT1.
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -292,6 +302,7 @@ pub struct ActuatorStatus {
 }
 
 /// Warning Status
+///
 /// Enum that indicates if a warning has occured or not.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
@@ -311,6 +322,7 @@ impl From<bool> for WarningStatus {
 }
 
 /// Error Status
+///
 /// Enum that indicates if an error has occured or not.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
@@ -330,6 +342,7 @@ impl From<bool> for ErrorStatus {
 }
 
 /// Decodification Status
+///
 /// A DecodificationError indicates that either the counting frequency is too high or that
 /// two incremental edges are too close together.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
@@ -368,6 +381,7 @@ impl From<bool> for OverflowStatus {
 }
 
 /// Zero Status
+///
 /// This enum indicates if the counter has reached the zero value or not.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
@@ -387,6 +401,7 @@ impl From<bool> for ZeroStatus {
 }
 
 /// Power Status
+///
 /// If VDD falls below the power off supply level, the device is reset and the RAM initialized to
 /// the default value. This status bit indicates that this initialization has taken place (and you
 /// might want to consider re-initializing the device).
@@ -410,6 +425,7 @@ impl From<bool> for UndervoltageStatus {
 }
 
 /// Register Status
+///
 /// This enum indicates if a register is valid (Ok) or not (Invalid).
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
@@ -429,6 +445,7 @@ impl From<bool> for RegisterStatus {
 }
 
 /// Touch probe Status
+///
 /// This enum indicates if the TPx registers are not loaded / have not been updated or if new
 /// values were loaded into the them.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
@@ -449,6 +466,7 @@ impl From<bool> for TouchProbeStatus {
 }
 
 /// Communiucatoion Status
+///
 /// This enum indicates if the communication with the device has experienced a collision or not.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
@@ -487,6 +505,7 @@ impl From<bool> for InterfaceStatus {
 }
 
 /// Status enum for pins.
+///
 /// `PinStatus::High` means that the pin is at VDD, `PinStatus::Low` means that the pin is at GND.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]

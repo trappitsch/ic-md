@@ -3,6 +3,17 @@
 //! Driver for the iC-MD quadrature counter.
 //! Built fully in Rust, uses [embedded_hal] and [device_driver].
 //!
+//! <div class="warning">
+//!
+//! **Important Note:**
+//!
+//! This driver is in active development and not yet feature complete. Please see the section below
+//! on Limitations for more details. This driver is currently only available via `git`. 
+//!
+//! Any comments are welcome!
+//!
+//! </div>
+//!
 //! # Introduction
 //!
 //! The `IcMd` struct provides a high-level interface to interact with the iC-MD quadrature
@@ -30,11 +41,53 @@
 //!
 //! # Example Usage
 //!
-//! TODO
+//! ```rust
+//! # use embedded_hal_mock::eh1::spi::{Mock, Transaction};
+//! # use ic_md::IcMd;
+//! # let expectations = [
+//! #     Transaction::transaction_start(),
+//! #     Transaction::write(0x00),
+//! #     Transaction::write(0x02),
+//! #     Transaction::transaction_end(),
+//! #     Transaction::transaction_start(),
+//! #     Transaction::write(0x80 | 0x08),
+//! #     Transaction::read_vec(vec![0x00, 0x00, 0x00, 0x00, 0x00, 0x2A, 0xC0]),
+//! #     Transaction::transaction_end(),
+//! # ];
+//! // Initialize your SPIDevice, here we are mocking a device!
+//! let mut spi_device = Mock::new(&expectations);
+//!
+//! // Get a handle to the counter with the default setup
+//! let mut icmd = IcMd::new(&mut spi_device);
+//!
+//! // Initialize the counter
+//! icmd.init().unwrap();
+//!
+//! // Read out the counter
+//! let counter_value = icmd.read_counter().unwrap();
+//!
+//! // We can use the get counter methods to access the values. This will return an `Option`
+//! // containing an `i64` value of the count (if the counter is setup, otherwise `None`).
+//! let cnt_0 = counter_value
+//!     .get_cnt0()
+//!     .expect("Counter 0 should always be set up");
+//!
+//! assert_eq!(cnt_0, 42);
+//!
+//! // Last, let us ensure that there are no errors or warnings in the device status. We can use
+//! // the `.is_ok()` method on the `DeviceStatus` struct to do this.
+//! assert!(icmd.get_device_status().is_ok());
+//! #  
+//! # // Check that all our expectations are met - testing only
+//! # spi_device.done();
+//! ```
 //!
 //! # Further help
 //!
-//! TODO, but there should be full tests that help with understanding how to use the driver.
+//! For further help and examples, please have a look at the `test` directory in the GitHub
+//! repository, which you can find [here](https://github.com/trappitsch/ic-md/).
+//! There you will find various integration tests that show how to use the driver in practice and
+//! that contain detailed comments on for you.
 
 use core::{fmt::Debug, result::Result};
 use embedded_hal::spi::SpiDevice;
