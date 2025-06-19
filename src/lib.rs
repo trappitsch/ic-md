@@ -211,17 +211,7 @@ impl<Spi: SpiDevice> IcMd<Spi> {
             CntCfg::Cnt1Bit48(_) => {
                 let res = self.device.read_cnt_cfg_2().read()?;
                 self.set_device_status(res.nwarn(), res.nerr());
-                // FIXME: Fix the device_driver bug that doens't convert negative i48 to i64
-                // The following lines can be reverted once the bug is fixed.
-                // HACK: Only fix this for the 48bit driver for now as I need a quick fix fast.
-                let val = res.cnt_0();
-                let out: i64 = if val >> 47 & 1 == 1 {
-                    let tmp = val ^ 0xFF_FF_FF_FF_FF_FF_i64;
-                    -(tmp + 1)
-                } else {
-                    val
-                };
-                Ok(CntCount::Cnt1Bit48(out)) // FIXME: Should return `res.cnt_0()` directly
+                Ok(CntCount::Cnt1Bit48(res.cnt_0()))
             }
             CntCfg::Cnt1Bit16(_) => {
                 let res = self.device.read_cnt_cfg_3().read()?;
