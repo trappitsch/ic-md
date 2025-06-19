@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["MAX_RUST_KEYWORD_LEN","MAX_RUST_RAW_KEYWORD_LEN","RUST_KEYWORDS"],"enum":["CharPrefix","FloatKind","IntKind","Num","StrPrefix","Target"],"fn":["strip_common"],"mod":["ascii_str","expr","node"],"struct":["Ast","CharLit","InnerSyntax","ParseError","Parsed","Span","StrLit","Syntax","SyntaxBuilder","WithSpan"]};

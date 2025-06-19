@@ -1,0 +1,124 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`kdl` is a “document-oriented” parser and API for the KDL Document Language, a node-based, human-friendly configuration and serialization format."><title>kdl - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="kdl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://kdl.dev/favicon.ico"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button><a class="logo-container" href="../kdl/index.html"><img src="https://kdl.dev/logo.svg" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../kdl/index.html"><img src="https://kdl.dev/logo.svg" alt="logo"></a><h2><a href="../kdl/index.html">kdl</a><span class="version">6.3.4</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#example" title="Example">Example</a></li><li><a href="#controlling-formatting" title="Controlling Formatting">Controlling Formatting</a></li><li><a href="#error-reporting" title="Error Reporting">Error Reporting</a></li><li><a href="#features" title="Features">Features</a></li><li><a href="#quirks" title="Quirks">Quirks</a><ul><li><a href="#properties" title="Properties">Properties</a></li><li><a href="#numbers" title="Numbers">Numbers</a></li></ul></li><li><a href="#minimum-supported-rust-version-msrv" title="Minimum Supported Rust Version (MSRV)">Minimum Supported Rust Version (MSRV)</a></li><li><a href="#license" title="License">License</a></li></ul><h3><a href="#structs">Crate Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>kdl</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/kdl/lib.rs.html#1-211">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><code>kdl</code> is a “document-oriented” parser and API for the <a href="https://kdl.dev">KDL Document
+Language</a>, a node-based, human-friendly configuration and
+serialization format.</p>
+<p>Unlike serde-based implementations, this crate preserves formatting when
+editing, as well as when inserting or changing values with custom
+formatting. This is most useful when working with human-maintained KDL
+files.</p>
+<p>You can think of this crate as
+<a href="https://crates.io/crates/toml_edit"><code>toml_edit</code></a>, but for KDL.</p>
+<p>This crate supports both KDL v2.0.0 and v1.0.0 (when using the non-default
+<code>v1</code> feature). It also supports converting documents between either format.</p>
+<p>There is also a <code>v1-fallback</code> feature that may be enabled in order to have
+the various <code>Kdl*::parse</code> methods try to parse their input as v2, and, if
+that fails, try again as v1. In either case, a dedicated <code>Kdl*::parse_v1</code>
+method is available for v1-exclusive parsing, as long as either <code>v1</code> or
+<code>v1-fallback</code> are enabled.</p>
+<h3 id="example"><a class="doc-anchor" href="#example">§</a>Example</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>kdl::{KdlDocument, KdlValue};
+
+<span class="kw">let </span>doc_str = <span class="string">r#"
+hello 1 2 3
+
+// Comment
+world prop=string-value {
+    child 1
+    child 2
+    child #inf
+}
+"#</span>;
+
+<span class="kw">let </span>doc: KdlDocument = doc_str.parse().expect(<span class="string">"failed to parse KDL"</span>);
+
+<span class="macro">assert_eq!</span>(
+    doc.iter_args(<span class="string">"hello"</span>).collect::&lt;Vec&lt;<span class="kw-2">&amp;</span>KdlValue&gt;&gt;(),
+    <span class="macro">vec!</span>[<span class="kw-2">&amp;</span><span class="number">1</span>.into(), <span class="kw-2">&amp;</span><span class="number">2</span>.into(), <span class="kw-2">&amp;</span><span class="number">3</span>.into()]
+);
+
+<span class="macro">assert_eq!</span>(
+    doc.get(<span class="string">"world"</span>).map(|node| <span class="kw-2">&amp;</span>node[<span class="string">"prop"</span>]),
+    <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">"string-value"</span>.into())
+);
+
+<span class="comment">// Documents fully roundtrip:
+</span><span class="macro">assert_eq!</span>(doc.to_string(), doc_str);</code></pre></div>
+<h3 id="controlling-formatting"><a class="doc-anchor" href="#controlling-formatting">§</a>Controlling Formatting</h3>
+<p>By default, everything is created with default formatting. You can parse
+items manually to provide custom representations, comments, etc:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>node_str = <span class="string">r#"
+  // indented comment
+  "formatted" 1 /* comment */ \
+    2;
+"#</span>;
+
+<span class="kw">let </span><span class="kw-2">mut </span>doc = kdl::KdlDocument::new();
+doc.nodes_mut().push(node_str.parse().unwrap());
+
+<span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>doc.to_string(), node_str);</code></pre></div>
+<p><a href="struct.KdlDocument.html" title="struct kdl::KdlDocument"><code>KdlDocument</code></a>, <a href="struct.KdlNode.html" title="struct kdl::KdlNode"><code>KdlNode</code></a>, <a href="struct.KdlEntry.html" title="struct kdl::KdlEntry"><code>KdlEntry</code></a>, and <a href="struct.KdlIdentifier.html" title="struct kdl::KdlIdentifier"><code>KdlIdentifier</code></a> can all
+be parsed and managed this way.</p>
+<h3 id="error-reporting"><a class="doc-anchor" href="#error-reporting">§</a>Error Reporting</h3>
+<p><a href="struct.KdlError.html" title="struct kdl::KdlError"><code>KdlError</code></a> implements <a href="../miette/protocol/trait.Diagnostic.html" title="trait miette::protocol::Diagnostic"><code>miette::Diagnostic</code></a> and can be used to display
+detailed, pretty-printed diagnostic messages when using <a href="../miette/eyreish/type.Result.html" title="type miette::eyreish::Result"><code>miette::Result</code></a>
+and the <code>"fancy"</code> feature flag for <code>miette</code>:</p>
+<div class="example-wrap"><pre class="language-toml"><code># Cargo.toml
+[dependencies]
+miette = { version = &quot;x.y.z&quot;, features = [&quot;fancy&quot;] }</code></pre></div>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">fn </span>main() -&gt; miette::Result&lt;()&gt; {
+    <span class="string">"foo 1."</span>.parse::&lt;kdl::KdlDocument&gt;()<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<p>This will display a message like:</p>
+<div class="example-wrap"><pre class="language-text"><code>Error:
+  × Expected valid value.
+   ╭────
+ 1 │ foo 1.
+   ·     ─┬
+   ·      ╰── invalid float
+   ╰────
+  help: Floating point numbers must be base 10, and have numbers after the decimal point.</code></pre></div><h3 id="features"><a class="doc-anchor" href="#features">§</a>Features</h3>
+<ul>
+<li><code>span</code> (default) - Includes spans in the various document-related structs.</li>
+<li><code>v1</code> - Adds support for v1 parsing. This will pull in the entire previous
+version of <code>kdl-rs</code>, and so may be fairly heavy.</li>
+<li><code>v1-fallback</code> - Implies <code>v1</code>. Makes it so the various <code>*::parse()</code> and
+<code>FromStr</code> implementations try to parse their inputs as <code>v2</code>, and, if that
+fails, try again with <code>v1</code>. For <code>KdlDocument</code>, a heuristic will be applied
+if both <code>v1</code> and <code>v2</code> parsers fail, to pick which error(s) to return. For
+other types, only the <code>v2</code> parser’s errors will be returned.</li>
+</ul>
+<h3 id="quirks"><a class="doc-anchor" href="#quirks">§</a>Quirks</h3><h4 id="properties"><a class="doc-anchor" href="#properties">§</a>Properties</h4>
+<p>Multiple properties with the same name are allowed, and all duplicated
+<strong>will be preserved</strong>, meaning those documents will correctly round-trip.
+When using <code>node.get()</code>/<code>node["key"]</code> &amp; company, the <em>last</em> property with
+that name’s value will be returned (as per spec).</p>
+<h4 id="numbers"><a class="doc-anchor" href="#numbers">§</a>Numbers</h4>
+<p>KDL itself does not specify a particular representation for numbers and
+accepts just about anything valid, no matter how large and how small. This
+means a few things:</p>
+<ul>
+<li>Numbers without a decimal point are interpreted as <a href="https://doc.rust-lang.org/1.87.0/std/primitive.i128.html" title="primitive i128"><code>i128</code></a>.</li>
+<li>Numbers with a decimal point are interpreted as <a href="https://doc.rust-lang.org/1.87.0/std/primitive.f64.html" title="primitive f64"><code>f64</code></a>.</li>
+<li>The keywords <code>#inf</code>, <code>#-inf</code>, and <code>#nan</code> evaluate to <a href="https://doc.rust-lang.org/1.87.0/std/primitive.f64.html#associatedconstant.INFINITY" title="associated constant f64::INFINITY"><code>f64::INFINITY</code></a>,
+<a href="https://doc.rust-lang.org/1.87.0/std/primitive.f64.html#associatedconstant.NEG_INFINITY" title="associated constant f64::NEG_INFINITY"><code>f64::NEG_INFINITY</code></a>, and <a href="https://doc.rust-lang.org/1.87.0/std/primitive.f64.html#associatedconstant.NAN" title="associated constant f64::NAN"><code>f64::NAN</code></a>.</li>
+<li>The original <em>representation/text</em> of these numbers will be preserved,
+unless you <a href="struct.KdlDocument.html#method.autoformat" title="method kdl::KdlDocument::autoformat"><code>KdlDocument::autoformat</code></a> in which case the original
+representation will be thrown away and the actual value will be used when
+serializing.</li>
+</ul>
+<h3 id="minimum-supported-rust-version-msrv"><a class="doc-anchor" href="#minimum-supported-rust-version-msrv">§</a>Minimum Supported Rust Version (MSRV)</h3>
+<p>You must be at least <code>1.71.1</code> tall to get on this ride.</p>
+<h3 id="license"><a class="doc-anchor" href="#license">§</a>License</h3>
+<p>The code in this repository is covered by <a href="./LICENSE">the Apache-2.0
+License</a>.</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.ChildrenIter.html" title="struct kdl::ChildrenIter">Children<wbr>Iter</a></dt><dd>Iterator for child nodes for this node. Empty if there is no children block.</dd><dt><a class="struct" href="struct.ChildrenIterMut.html" title="struct kdl::ChildrenIterMut">Children<wbr>Iter<wbr>Mut</a></dt><dd>Iterator for child nodes for this node. Empty if there is no children block.</dd><dt><a class="struct" href="struct.EntryIter.html" title="struct kdl::EntryIter">Entry<wbr>Iter</a></dt><dd>Iterator for entries in a node, including properties.</dd><dt><a class="struct" href="struct.EntryIterMut.html" title="struct kdl::EntryIterMut">Entry<wbr>Iter<wbr>Mut</a></dt><dd>Mutable iterator for entries in a node, including properties.</dd><dt><a class="struct" href="struct.FormatConfig.html" title="struct kdl::FormatConfig">Format<wbr>Config</a></dt><dd>Formatting configuration for use with <a href="struct.KdlDocument.html#method.autoformat_config" title="method kdl::KdlDocument::autoformat_config"><code>KdlDocument::autoformat_config</code></a>
+and <a href="struct.KdlNode.html#method.autoformat_config" title="method kdl::KdlNode::autoformat_config"><code>KdlNode::autoformat_config</code></a>.</dd><dt><a class="struct" href="struct.FormatConfigBuilder.html" title="struct kdl::FormatConfigBuilder">Format<wbr>Config<wbr>Builder</a></dt><dd>A <a href="struct.FormatConfig.html" title="struct kdl::FormatConfig"><code>FormatConfig</code></a> builder.</dd><dt><a class="struct" href="struct.KdlDiagnostic.html" title="struct kdl::KdlDiagnostic">KdlDiagnostic</a></dt><dd>An individual diagnostic message for a KDL parsing issue.</dd><dt><a class="struct" href="struct.KdlDocument.html" title="struct kdl::KdlDocument">KdlDocument</a></dt><dd>Represents a KDL
+<a href="https://github.com/kdl-org/kdl/blob/main/SPEC.md#document"><code>Document</code></a>.</dd><dt><a class="struct" href="struct.KdlDocumentFormat.html" title="struct kdl::KdlDocumentFormat">KdlDocument<wbr>Format</a></dt><dd>Formatting details for <a href="struct.KdlDocument.html" title="struct kdl::KdlDocument"><code>KdlDocument</code></a>s.</dd><dt><a class="struct" href="struct.KdlEntry.html" title="struct kdl::KdlEntry">KdlEntry</a></dt><dd>KDL Entries are the “arguments” to KDL nodes: either a (positional)
+<a href="https://github.com/kdl-org/kdl/blob/main/SPEC.md#argument"><code>Argument</code></a> or
+a (key/value)
+<a href="https://github.com/kdl-org/kdl/blob/main/SPEC.md#property"><code>Property</code></a></dd><dt><a class="struct" href="struct.KdlEntryFormat.html" title="struct kdl::KdlEntryFormat">KdlEntry<wbr>Format</a></dt><dd>Formatting details for <a href="struct.KdlEntry.html" title="struct kdl::KdlEntry"><code>KdlEntry</code></a>s.</dd><dt><a class="struct" href="struct.KdlError.html" title="struct kdl::KdlError">KdlError</a></dt><dd>The toplevel <code>Error</code> type for KDL: this is returned when a KDL document
+failed to parse entirely.</dd><dt><a class="struct" href="struct.KdlIdentifier.html" title="struct kdl::KdlIdentifier">KdlIdentifier</a></dt><dd>Represents a KDL
+<a href="https://github.com/kdl-org/kdl/blob/main/SPEC.md#identifier">Identifier</a>.</dd><dt><a class="struct" href="struct.KdlNode.html" title="struct kdl::KdlNode">KdlNode</a></dt><dd>Represents an individual KDL
+<a href="https://github.com/kdl-org/kdl/blob/main/SPEC.md#node"><code>Node</code></a> inside a
+KDL Document.</dd><dt><a class="struct" href="struct.KdlNodeFormat.html" title="struct kdl::KdlNodeFormat">KdlNode<wbr>Format</a></dt><dd>Formatting details for <a href="struct.KdlNode.html" title="struct kdl::KdlNode"><code>KdlNode</code></a>.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.KdlValue.html" title="enum kdl::KdlValue">KdlValue</a></dt><dd>A specific <a href="https://github.com/kdl-org/kdl/blob/main/SPEC.md#value">KDL Value</a>.</dd><dt><a class="enum" href="enum.NodeKey.html" title="enum kdl::NodeKey">NodeKey</a></dt><dd>Represents a <a href="struct.KdlNode.html" title="struct kdl::KdlNode"><code>KdlNode</code></a>’s entry key.</dd></dl></section></div></main></body></html>

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["transform_dsl"]};
+window.SIDEBAR_ITEMS = {"fn":["transform_dsl"],"mod":["mir"]};

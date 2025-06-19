@@ -1,0 +1,1 @@
+searchState.loadedDescShard("askama_derive", 0, "The <code>Template</code> derive macro and its <code>template()</code> attribute.")

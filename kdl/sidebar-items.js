@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["KdlValue","NodeKey"],"struct":["ChildrenIter","ChildrenIterMut","EntryIter","EntryIterMut","FormatConfig","FormatConfigBuilder","KdlDiagnostic","KdlDocument","KdlDocumentFormat","KdlEntry","KdlEntryFormat","KdlError","KdlIdentifier","KdlNode","KdlNodeFormat"]};
