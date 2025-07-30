@@ -1,5 +1,3 @@
-#![cfg_attr(not(test), no_std)]
-
 //! Driver for the iC-MD quadrature counter.
 //! Built fully in Rust, uses [embedded_hal] and [device_driver].
 //!
@@ -88,6 +86,9 @@
 //! repository, which you can find [here](https://github.com/trappitsch/ic-md/).
 //! There you will find various integration tests that show how to use the driver in practice and
 //! that contain detailed comments on for you.
+
+#![deny(warnings, missing_docs)]
+#![cfg_attr(not(test), no_std)]
 
 use core::{fmt::Debug, result::Result};
 use embedded_hal::spi::SpiDevice;

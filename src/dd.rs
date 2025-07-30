@@ -280,6 +280,7 @@ device_driver::create_device! {
 /// The SPI Device wrapper interface to the driver
 #[derive(Debug)]
 pub struct DeviceInterface<Spi> {
+    /// The SPI device used to communicato with the iC-MD device.
     pub spi: Spi,
 }
 

@@ -10,13 +10,22 @@ use core::{convert::From, default::Default, fmt::Debug};
 #[derive(Debug)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum CntCount {
+    /// Counter return value for configuration counter 0 = 24 bit; 1 counter; TTL, RS422, or LVDS
     Cnt1Bit24(i32),
+    /// Counter return value for configuration counter 0 = 24 bit and Counter 1 = 24 bit; 2 counters; TTL only
     Cnt2Bit24(i32, i32),
+    /// Counter return value for configuration counter 0 = 48 bit; 1 counter; TTL, RS422, or LVDS
     Cnt1Bit48(i64),
+    /// Counter return value for configuration counter 0 = 16 bit; 1 counter; TTL, RS422, or LVDS
     Cnt1Bit16(i16),
+    /// Counter return value for configuration counter 0 = 32 bit; 1 counter; TTL, RS422, or LVDS
     Cnt1Bit32(i32),
+    /// Counter return value for configuration counter 0 = 32 bit and Counter 1 = 16 bit; 2 counters; TTL only
     Cnt2Bit32Bit16(i16, i32),
+    /// Counter return value for configuration counter 0 = 16 bit and Counter 1 = 16 bit; 2 counters; TTL only
     Cnt2Bit16(i16, i16),
+    /// Counter return value for configuration counter 0 = 16 bit, Counter 1 = 16 bit, and Counter 2 = 16 bit;
+    /// 3 counters; TTL only
     Cnt3Bit16(i16, i16, i16),
 }
 
@@ -69,8 +78,10 @@ impl CntCount {
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum CntDirection {
+    /// Clockwise counting direction
     #[default]
     CW,
+    /// Counterclockwise counting direction
     CCW,
 }
 
@@ -88,7 +99,9 @@ impl From<CntDirection> for u8 {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum CntZSignal {
     #[default]
+    /// Normal Z signal
     Normal,
+    /// Inverted Z signal
     Inverted,
 }
 
@@ -282,7 +295,7 @@ pub struct FullDeviceStatus {
     pub ext_warn_status: WarningStatus,
     /// Communication status: Has a communication collision occured?
     pub comm_status: CommunicationStatus,
-    // Touch probe status: Are the TPx registers updated?
+    /// Touch probe status: Are the TPx registers updated?
     pub tp_status: TouchProbeStatus,
     /// TPI pin status
     pub tpi_status: PinStatus,
@@ -297,7 +310,9 @@ pub struct FullDeviceStatus {
 #[derive(Debug, Default, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct ActuatorStatus {
+    /// Status of the ACT0 pin
     pub act0: PinStatus,
+    /// Status of the ACT1 pin
     pub act1: PinStatus,
 }
 
@@ -308,7 +323,9 @@ pub struct ActuatorStatus {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum WarningStatus {
     #[default]
+    /// No warning has occured.
     Ok,
+    /// A warning has occured.
     Warning,
 }
 
@@ -328,7 +345,9 @@ impl From<bool> for WarningStatus {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum ErrorStatus {
     #[default]
+    /// No error has occured.
     Ok,
+    /// An error has occured.
     Error,
 }
 
@@ -349,7 +368,9 @@ impl From<bool> for ErrorStatus {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum DecodificationStatus {
     #[default]
+    /// No decodification error has occured.
     Ok,
+    /// A decodification error has occured.
     DecodificationError,
 }
 
@@ -367,7 +388,9 @@ impl From<bool> for DecodificationStatus {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum OverflowStatus {
     #[default]
+    /// No overflow has occured.
     Ok,
+    /// An overflow has occured.
     Overflow,
 }
 
@@ -387,7 +410,9 @@ impl From<bool> for OverflowStatus {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum ZeroStatus {
     #[default]
+    /// The counter is not at zero.
     NotZero,
+    /// The counter is at zero.
     Zero,
 }
 
@@ -431,7 +456,9 @@ impl From<bool> for UndervoltageStatus {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum RegisterStatus {
     #[default]
+    /// The register is valid
     Ok,
+    /// The register is not valid
     Invalid,
 }
 
@@ -452,7 +479,9 @@ impl From<bool> for RegisterStatus {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum TouchProbeStatus {
     #[default]
+    /// The TPx registers have not been updated or are not loaded.
     NotUpdated,
+    /// The TPx registers have been updated and contain new values.
     Updated,
 }
 
@@ -465,14 +494,16 @@ impl From<bool> for TouchProbeStatus {
     }
 }
 
-/// Communiucatoion Status
+/// Communication Status
 ///
 /// This enum indicates if the communication with the device has experienced a collision or not.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum CommunicationStatus {
     #[default]
+    /// No collision has occurred, communication is ok.
     Ok,
+    /// A collision has occurred, communication is not ok.
     Collision,
 }
 
@@ -491,7 +522,9 @@ impl From<bool> for CommunicationStatus {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum InterfaceStatus {
     #[default]
+    /// The interface is disabled.
     Disabled,
+    /// The interface is enabled.
     Enabled,
 }
 
@@ -511,7 +544,9 @@ impl From<bool> for InterfaceStatus {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum PinStatus {
     #[default]
+    /// Pin is at low level (GND)
     Low,
+    /// Pin is at high level (VDD)
     High,
 }
 
