@@ -6,7 +6,7 @@ edition = "2024"
 
 [dependencies]
 defmt = { version = "1.0.1", optional = true }
-device-driver = { version = "1.0.6", default-features = false, features = [ "dsl" ] }
+device-driver = { version = "1.0.7", default-features = false, features = [ "dsl" ] }
 embedded-hal = "1"
 embedded-hal-async = "1"
 

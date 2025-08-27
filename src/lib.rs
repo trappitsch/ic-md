@@ -19,7 +19,7 @@
 //! field. Please read the device driver documentation for more information on what to expect
 //! when interfacing with the device driver directly.
 //! This low-level access is a temporary solution until the high-level interface is fully
-//! developped. When this well be the case is unclear. If you are interested in it, please let me
+//! developed. When this well be the case is unclear. If you are interested in it, please let me
 //! know and I'm happy to prioritize the high-level features that are interesting to you.
 //!
 //! # Limitations
@@ -30,12 +30,11 @@
 //!
 //! The following features are currently not yet implemented:
 //!
-//! - Input configuration: You can currently not specify the input configuration.
-//!   - Differential or TTL inputs (Address 0x01, bit 7)
-//!   - Configuration to have Z signal clear counters 0 and/or 1 (Address 0x01, bits 5 and 6)
-//!   - Z signal configuration (Address 0x01, bits 3 and 4)
-//!   - Touch probe and AB registers (Address 0x01, bits 1 and 2)
-//!   - Differential input configuration selection (RS-422 (default) or LVDS) (Address 0x03, bit 7)
+//! - Differential or TTL inputs (Address 0x01, bit 7)
+//! - Configuration to have Z signal clear counters 0 and/or 1 (Address 0x01, bits 5 and 6)
+//! - Z signal configuration (Address 0x01, bits 3 and 4)
+//! - Touch probe and AB registers (Address 0x01, bits 1 and 2)
+//! - Differential input configuration selection (RS-422 (default) or LVDS) (Address 0x03, bit 7)
 //!
 //! # Example Usage
 //!
