@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["Reto Trappitsch <reto@galactic-forensics.space>"]
 license = "MIT OR Apache-2.0"
 edition = "2024"
+description = "Driver for the iC-Haus iC-MD 48-Bit quadrature counter with SPI interface."
+documentation = "https://docs.rs/ic-md"
+repository = "https://github.com/trappitsch/ic-md"
 
 [dependencies]
 defmt = { version = "1.0.1", optional = true }
@@ -16,4 +19,3 @@ defmt = ["dep:defmt"]
 
 [dev-dependencies]
 embedded-hal-mock = "0.11.1"
-
