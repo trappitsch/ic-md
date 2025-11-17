@@ -114,23 +114,254 @@ impl From<CntZSignal> for u8 {
     }
 }
 
+/// Input configuration
+///
+/// This holds the setup if the inputs are TTL or Differential (RS422 or LVDS).
+/// If two or more counters are used, the input setup must be set to TTL.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum InputConfig {
+    /// Differential RS-422 inputs (default).
+    #[default]
+    Rs422,
+    /// Differential LVDS inputs.
+    Lvds,
+    /// Single-ended TTL inputs.
+    Ttl,
+}
+
+impl InputConfig {
+    /// Get bit 7 of addr 0x01
+    ///
+    /// This is the bit that states differential inputs (0, default) or TTL inputs (1).
+    pub(crate) fn get_bit7_addr1(&self) -> u8 {
+        match self {
+            InputConfig::Ttl => 1,
+            _ => 0,
+        }
+    }
+
+    /// Get bit 7 of addr 0x03
+    ///
+    /// This differs between RS-422 (0, default) and LVDS (1) inputs.
+    /// When in TTL mode, this will return 0 (default) even though this bit is ignored.
+    pub(crate) fn get_bit7_addr3(&self) -> u8 {
+        match self {
+            InputConfig::Lvds => 1,
+            _ => 0,
+        }
+    }
+}
+
+/// Counter cleared by Z signal.
+///
+/// This enum inidcates if a given counter is cleared by its Z signal or not.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum CntClearedByZ {
+    /// Counter is not cleared by Z signal.
+    #[default]
+    No,
+    /// Counter is cleared by Z signal.
+    Yes,
+}
+
+impl From<&CntClearedByZ> for u8 {
+    fn from(val: &CntClearedByZ) -> Self {
+        match val {
+            CntClearedByZ::No => 0,
+            CntClearedByZ::Yes => 1,
+        }
+    }
+}
+
+/// Index signal configuration
+///
+/// Select when the index signal is active. In the default setup, the index signal is active when A
+/// = B = 1 (high).
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum IndexSignalConfig {
+    /// Index signal active when A = B = 1 (high) (default).
+    #[default]
+    ABHigh,
+    /// Index signal active when A = 1 and B = 0.
+    AHighBLow,
+    /// Index signal active when A = 0 and B = 1.
+    ALowBHigh,
+    /// Index signal active when A = B = 0 (low).
+    ABLow,
+}
+
+impl From<IndexSignalConfig> for u8 {
+    fn from(val: IndexSignalConfig) -> Self {
+        match val {
+            IndexSignalConfig::ABHigh => 0b00,
+            IndexSignalConfig::AHighBLow => 0b01,
+            IndexSignalConfig::ALowBHigh => 0b10,
+            IndexSignalConfig::ABLow => 0b11,
+        }
+    }
+}
+
+/// Touch probe pin configuration
+///
+/// Specify the configuration of the Touch Probe Interface pins, i.e., which edges trigger an
+/// event.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum TouchProbePinConfig {
+    /// Both edges (rising and falling) are active (default).
+    #[default]
+    BothEdges,
+    /// Only rising edge is active.
+    RisingEdge,
+    /// Only falling edge is active.
+    FallingEdge,
+    /// Pin is disabled (no edge is active).
+    Disabled,
+}
+
+impl From<TouchProbePinConfig> for u8 {
+    fn from(val: TouchProbePinConfig) -> Self {
+        match val {
+            TouchProbePinConfig::BothEdges => 0b00,
+            TouchProbePinConfig::RisingEdge => 0b01,
+            TouchProbePinConfig::FallingEdge => 0b10,
+            TouchProbePinConfig::Disabled => 0b11,
+        }
+    }
+}
+
+/// Interface priority
+///
+/// Define the priority of the interfaces, either BiSS or SPI.
+/// Note: While the default for the chip is BiSS, this driver (as it is an SPI driver) defaults to
+/// SPI priority. Of course, you can overwrite this setting.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum InterfacePriority {
+    /// BiSS interface has priority.
+    Biss,
+    /// SPI interface has priority (default).
+    #[default]
+    Spi,
+}
+
+impl From<InterfacePriority> for u8 {
+    fn from(val: InterfacePriority) -> Self {
+        match val {
+            InterfacePriority::Biss => 0,
+            InterfacePriority::Spi => 1,
+        }
+    }
+}
+
 /// Setup for a specific counter.
 ///
 /// Use this struct to declare the setup of a specific counter.
+///
+/// The configuration holds the following parameters:
+///
+/// - Counting direction [`CntDirection`]
+/// - Z signal configuration [`CntZSignal`]
+/// - Is the counter cleared by the Z signal? [`CntClearedByZ`]
+///
+/// If three counters are used, no Z signal configuration is possible and thus the
+/// `cnt_cleared_by_z` parameter will be ignored as well.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct CntSetup {
     count_direction: CntDirection,
     z_signal: CntZSignal,
+    cnt_cleared_by_z: CntClearedByZ,
 }
 
 impl CntSetup {
-    /// Create a new counter setup with the given direction and Z signal.
-    pub fn new(count_direction: CntDirection, z_signal: CntZSignal) -> Self {
-        Self {
-            count_direction,
-            z_signal,
-        }
+    /// Set the counting direction.
+    pub fn set_count_direction(&mut self, direction: CntDirection) {
+        self.count_direction = direction;
+    }
+
+    /// Set the Z signal configuration.
+    pub fn set_z_signal(&mut self, z_signal: CntZSignal) {
+        self.z_signal = z_signal;
+    }
+
+    /// Set if counter 0 cleared by Z signal configuration.
+    pub fn set_cnt_cleared_by_z(&mut self, cleared: CntClearedByZ) {
+        self.cnt_cleared_by_z = cleared;
+    }
+}
+
+/// Device configuration
+///
+/// This sets the overall configuration of the iC-MD device.
+/// This configuration includes the input configuration (TTL, RS422, or LVDS), index signal
+/// configuration, touch probe pin configuration, and interface priority.
+///
+/// Example to use a TTL configuration and leaving the rest as default values:
+///
+/// ```rust
+/// use ic_md::{DeviceCfg, };
+/// ```
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub struct DeviceCfg {
+    input_config: InputConfig,
+    index_signal_config: IndexSignalConfig,
+    touch_probe_pin_config: TouchProbePinConfig,
+    interface_priority: InterfacePriority,
+}
+
+impl DeviceCfg {
+    /// Set the input configuration.
+    pub fn set_input_config(&mut self, input_config: InputConfig) {
+        self.input_config = input_config;
+    }
+
+    /// Set the index signal configuration.
+    pub fn set_index_signal_config(&mut self, index_signal_config: IndexSignalConfig) {
+        self.index_signal_config = index_signal_config;
+    }
+
+    /// Set the touch probe pin configuration.
+    pub fn set_touch_probe_pin_config(&mut self, touch_probe_pin_config: TouchProbePinConfig) {
+        self.touch_probe_pin_config = touch_probe_pin_config;
+    }
+
+    /// Set the interface priority.
+    pub fn set_interface_priority(&mut self, interface_priority: InterfacePriority) {
+        self.interface_priority = interface_priority;
+    }
+
+    /// Get the 7 bits to write to address 0x01
+    ///
+    /// # Arguments
+    ///
+    /// * `cnt0_cleared_by_z` - Counter 0 cleared by Z signal configuration? This is stored in the
+    ///   counter configuration. If not provided, it will default to `0b0`.
+    /// * `cnt1_cleared_by_z` - Counter 1 cleared by Z signal configuration? This is stored in the
+    ///   counter configuration. If not provided, it will default to `0b0`.
+    pub(crate) fn get_addr1(
+        &self,
+        cnt0_cleared_by_z: Option<&CntClearedByZ>,
+        cnt1_cleared_by_z: Option<&CntClearedByZ>,
+    ) -> u8 {
+        u8::from(self.interface_priority) // bit 0
+            | (u8::from(self.touch_probe_pin_config) << 2) // bits 1-2 
+            | (u8::from(self.index_signal_config) << 4) // bits 3-4
+            | (u8::from(cnt0_cleared_by_z.unwrap_or(&CntClearedByZ::No)) << 5) // bit 5
+            | (u8::from(cnt1_cleared_by_z.unwrap_or(&CntClearedByZ::No)) << 6) // bit 6
+            | (self.input_config.get_bit7_addr1() << 7) // bit 7
+    }
+
+    /// Get the 7 bits to write to address 0x03
+    ///
+    /// Note: The `NMASK(1:0)` and `MASK(9:8)` are for now just set to zero, as this is not yet
+    /// implemented.
+    pub(crate) fn get_addr3(&self) -> u8 {
+        self.input_config.get_bit7_addr3() << 7 // bit 7
     }
 }
 
@@ -141,6 +372,8 @@ impl CntSetup {
 /// direction. Finally, you can also configure if the Z signal is normal or inverted.
 /// For the setup with three counters, the Z signal setup will simply be ignored as there are no
 /// connections for Z signals available. See datasheet for more information.
+///
+/// If two or more counters are used, the input setup must be set to TTL.
 ///
 /// If you enable the `defmt` feature, this enum will contain a `defmt::Format`
 /// implementation for logging the current configuration.
@@ -164,6 +397,23 @@ pub enum CntCfg {
     /// Counter 0 = 16 bit, Counter 1 = 16 bit, and Counter 2 = 16 bit; 3 counters; TTL
     /// only
     Cnt3Bit16(CntSetup, CntSetup, CntSetup),
+}
+
+impl CntCfg {
+    /// Get references to the `CntClearedByZ` configurations of counter 0 and counter 1 if they
+    /// exist.
+    pub(crate) fn get_cnt_cleared_by_z(&self) -> (Option<&CntClearedByZ>, Option<&CntClearedByZ>) {
+        match self {
+            CntCfg::Cnt1Bit24(i) => (Some(&i.cnt_cleared_by_z), None),
+            CntCfg::Cnt2Bit24(i, j) => (Some(&i.cnt_cleared_by_z), Some(&j.cnt_cleared_by_z)),
+            CntCfg::Cnt1Bit48(i) => (Some(&i.cnt_cleared_by_z), None),
+            CntCfg::Cnt1Bit16(i) => (Some(&i.cnt_cleared_by_z), None),
+            CntCfg::Cnt1Bit32(i) => (Some(&i.cnt_cleared_by_z), None),
+            CntCfg::Cnt2Bit32Bit16(i, j) => (Some(&i.cnt_cleared_by_z), Some(&j.cnt_cleared_by_z)),
+            CntCfg::Cnt2Bit16(i, j) => (Some(&i.cnt_cleared_by_z), Some(&j.cnt_cleared_by_z)),
+            CntCfg::Cnt3Bit16(_, _, _) => (None, None),
+        }
+    }
 }
 
 impl From<CntCfg> for u8 {

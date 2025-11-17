@@ -22,6 +22,23 @@ device_driver::create_device! {
             const SIZE_BITS = 8;
             value: uint = 0..8,
         },
+        /// General configuration address 0x01
+        /// This writes the general configuration for the counter (plus counter0 & counter1 invert
+        /// on Z signal configuration, if available) to the device.
+        register GeneralConfigurationAddr1 {
+            type Access = RW;
+            const ADDRESS = 0x01;
+            const SIZE_BITS = 8;
+            value: uint = 0..8,
+        },
+        /// General configuration address 0x03
+        /// Write the general configuration to be set in address 0x03 to the device.
+        register GeneralConfigurationAddr3 {
+            type Access = RW;
+            const ADDRESS = 0x03;
+            const SIZE_BITS = 8;
+            value: uint = 0..8,
+        },
         /// Read the 24 bit counter configuration, 24+2 bits to read (4 bytes)
         /// This corresponds to counter configuration `0b000`.
         register ReadCntCfg0 {

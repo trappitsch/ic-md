@@ -30,11 +30,8 @@
 //!
 //! The following features are currently not yet implemented:
 //!
-//! - Differential or TTL inputs (Address 0x01, bit 7)
-//! - Configuration to have Z signal clear counters 0 and/or 1 (Address 0x01, bits 5 and 6)
-//! - Z signal configuration (Address 0x01, bits 3 and 4)
-//! - Touch probe and AB registers (Address 0x01, bits 1 and 2)
-//! - Differential input configuration selection (RS-422 (default) or LVDS) (Address 0x03, bit 7)
+//! - Reading touch probe registers (you can already set them tough, which is probably useless
+//! without reading them though).
 //!
 //! # Example Usage
 //!
@@ -45,6 +42,14 @@
 //! #     Transaction::transaction_start(),
 //! #     Transaction::write(0x00),
 //! #     Transaction::write(0x02),
+//! #     Transaction::transaction_end(),
+//! #     Transaction::transaction_start(),
+//! #     Transaction::write(0x01),
+//! #     Transaction::write(0x01),
+//! #     Transaction::transaction_end(),
+//! #     Transaction::transaction_start(),
+//! #     Transaction::write(0x03),
+//! #     Transaction::write(0x00),
 //! #     Transaction::transaction_end(),
 //! #     Transaction::transaction_start(),
 //! #     Transaction::write(0x80 | 0x08),
@@ -106,6 +111,8 @@ pub mod dd;
 pub struct IcMd<Spi> {
     /// Provides acces to the underlying device driver.
     pub device: Device<DeviceInterface<Spi>>,
+    /// Device configuration (overall configuration, set only prior to `init()` call).
+    device_config: DeviceCfg,
     /// Configuration of the counter, set only prior to calling `init()`.
     counter_config: CntCfg,
     /// Status of the device (error and warning flags). Read only, updated when reading the
@@ -120,6 +127,7 @@ impl<Spi: SpiDevice> IcMd<Spi> {
     pub fn new(spi: Spi) -> Self {
         Self {
             device: Device::new(DeviceInterface::new(spi)),
+            device_config: DeviceCfg::default(),
             counter_config: CntCfg::Cnt1Bit48(CntSetup::default()),
             actuator_status: ActuatorStatus::default(),
             device_status: DeviceStatus::default(),
@@ -128,9 +136,16 @@ impl<Spi: SpiDevice> IcMd<Spi> {
 
     /// Initialize the iC-MD device with the given configuration.
     pub fn init(&mut self) -> Result<(), DeviceError<Spi::Error>> {
+        let (cnt0_clr, cnt1_clr) = self.counter_config.get_cnt_cleared_by_z();
         self.device
             .counter_configuration()
             .write(|reg| reg.set_value(self.counter_config.into()))?;
+        self.device
+            .general_configuration_addr_1()
+            .write(|reg| reg.set_value(self.device_config.get_addr1(cnt0_clr, cnt1_clr)))?;
+        self.device
+            .general_configuration_addr_3()
+            .write(|reg| reg.set_value(self.device_config.get_addr3()))?;
 
         Ok(())
     }
@@ -286,6 +301,12 @@ impl<Spi: SpiDevice> IcMd<Spi> {
         Ok(())
     }
 
+    /// Set the device configuration.
+    /// This should be done prior to calling `init()`.
+    pub fn set_device_config(&mut self, config: DeviceCfg) {
+        self.device_config = config;
+    }
+
     /// Set the counter configuration.
     /// This should be done prior to calling `init()`.
     pub fn set_counter_config(&mut self, config: CntCfg) {
@@ -293,7 +314,7 @@ impl<Spi: SpiDevice> IcMd<Spi> {
     }
 
     /// Set device status from two bools that were read and passed on to here.
-    /// Note taat the inputs are from nerr and nwarn!
+    /// Note that the inputs are from nerr and nwarn!
     fn set_device_status(&mut self, nwarn: bool, nerr: bool) {
         self.device_status.warning = match nwarn {
             true => WarningStatus::Ok,

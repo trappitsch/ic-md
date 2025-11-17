@@ -11,9 +11,17 @@ use ic_md::IcMd;
 fn test_default_icmd_and_counter_read() {
     // SPI transactions - ignore this if you look for the example
     let expectations = [
-        Transaction::transaction_start(), // Initialization
+        Transaction::transaction_start(), // Initialization addr 0x00
         Transaction::write(0x00),
-        Transaction::write(0x4E),
+        Transaction::write(0b0100_1110),
+        Transaction::transaction_end(),
+        Transaction::transaction_start(), // Initialization addr 0x01
+        Transaction::write(0x01),
+        Transaction::write(0b1000_0001),
+        Transaction::transaction_end(),
+        Transaction::transaction_start(), // Initialization addr 0x03
+        Transaction::write(0x03),
+        Transaction::write(0b0000_0000),
         Transaction::transaction_end(),
         Transaction::transaction_start(), // Read the counter
         Transaction::write(0x80 | 0x08),
@@ -29,15 +37,22 @@ fn test_default_icmd_and_counter_read() {
 
     // Specify the non-default counter setup
     // Counter zero: Counter clockwise direction and inverted Z signal
-    let cnt0_setup = ic_md::CntSetup::new(ic_md::CntDirection::CCW, ic_md::CntZSignal::Inverted);
+    let mut cnt0_setup = ic_md::CntSetup::default();
+    cnt0_setup.set_count_direction(ic_md::CntDirection::CCW);
+    cnt0_setup.set_z_signal(ic_md::CntZSignal::Inverted);
     // Counter one: Clockwise direction and non-inverted Z signal, i.e., default setup
     let cnt1_setup = ic_md::CntSetup::default();
 
     // We'll set up the two counter setup where each one is 16 bit deep with above defined setups.
     let counter_setup = ic_md::CntCfg::Cnt2Bit16(cnt0_setup, cnt1_setup);
 
+    // Since we have two counters set up, we need to set the inputs to TTL.
+    let mut device_config = ic_md::DeviceCfg::default();
+    device_config.set_input_config(ic_md::InputConfig::Ttl);
+
     // Now we set our counter configuration to the iC-MD device and initialize it.
     icmd.set_counter_config(counter_setup);
+    icmd.set_device_config(device_config);
     icmd.init().unwrap();
 
     // Read out the counter
