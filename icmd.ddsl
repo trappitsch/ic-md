@@ -1,0 +1,299 @@
+/// Low-level driver of iC-MD
+/// 
+/// This is the low-level driver for the iC-MD. It was built with [device-driver](https://device-driver.com). 
+/// All functionality is based on the datasheet Rev. C2. 
+device Device {
+    register-address-type: u8,
+    default-access: RW,
+
+    /// Counter configuration
+    /// The iC-MD can be configured for 1 up to 3 channels with counter lengths of 16 to 48
+    /// bits. Here, the counter configuration is selected as a u8 value. The higher-level
+    /// driver takes care of converting from a meaningful configuration to the 8-bit value.
+    register CounterConfiguration {
+        address: 0,
+        fields: fieldset _ {
+            size-bytes: 1,
+        
+            field value 7:0,
+        },
+    },
+    /// Read the 24 bit counter configuration, 24+2 bits to read (4 bytes)
+    /// This corresponds to counter configuration `0b000`.
+    register ReadCntCfg0 {
+        address: 8,
+        address-overlap: allow,
+        access: RO,
+        fields: fieldset _ {
+            size-bytes: 4,
+            byte-order: BE,
+        
+            /// Counter 0 value, bits 0-24
+            field cnt0 31:8 -> int,
+            field nerr 7 -> bool,
+            field nwarn 6 -> bool,
+        },
+    },
+    /// Read the 24 bit, 2 counters configuration, 48+2 bits to read (7 bytes)
+    /// This corresponds to counter configuration `0b001`.
+    register ReadCntCfg1 {
+        address: 8,
+        address-overlap: allow,
+        access: RO,
+        fields: fieldset _ {
+            size-bytes: 7,
+            byte-order: BE,
+        
+            /// Counter 1 value, bits 32-48
+            field cnt1 55:32 -> int,
+            /// Counter 0 value, bits 0-24
+            field cnt0 31:8 -> int,
+            field nerr 7 -> bool,
+            field nwarn 6 -> bool,
+        },
+    },
+    /// Read the 48 bit counter register, 48+2 bits to read (7 bytes)
+    /// This corresponds to counter configuration `0b010`.
+    register ReadCntCfg2 {
+        address: 8,
+        address-overlap: allow,
+        access: RO,
+        fields: fieldset _ {
+            size-bytes: 7,
+            byte-order: BE,
+        
+            /// Counter 0 value, bits 0-48
+            field cnt0 55:8 -> int,
+            field nerr 7 -> bool,
+            field nwarn 6 -> bool,
+        },
+    },
+    /// Read the 16 bit counter configuration, 16+2 bits to read (3 bytes)
+    /// This corresponds to counter configuration `0b011`.
+    register ReadCntCfg3 {
+        address: 8,
+        address-overlap: allow,
+        access: RO,
+        fields: fieldset _ {
+            size-bytes: 3,
+            byte-order: BE,
+        
+            /// Counter 0 value, bits 0-16
+            field cnt0 23:8 -> int,
+            field nerr 7 -> bool,
+            field nwarn 6 -> bool,
+        },
+    },
+    /// Read the 32 bit counter configuration, 32+2 bits to read (5 bytes)
+    /// This corresponds to counter configuration `0b100`.
+    register ReadCntCfg4 {
+        address: 8,
+        address-overlap: allow,
+        access: RO,
+        fields: fieldset _ {
+            size-bytes: 5,
+            byte-order: BE,
+        
+            /// Counter 0 value, bits 0-32
+            field cnt0 39:8 -> int,
+            field nerr 7 -> bool,
+            field nwarn 6 -> bool,
+        },
+    },
+    /// Read the 32 bit and 16 bit counter configuration, 32+16+2 bits to read (7 bytes)
+    /// This corresponds to counter configuration `0b101`.
+    register ReadCntCfg5 {
+        address: 8,
+        address-overlap: allow,
+        access: RO,
+        fields: fieldset _ {
+            size-bytes: 7,
+            byte-order: BE,
+        
+            /// Counter 1 value, bits 16-48
+            field cnt1 55:24 -> int,
+            /// Counter 0 value, bits 0-16
+            field cnt0 23:8 -> int,
+            field nerr 7 -> bool,
+            field nwarn 6 -> bool,
+        },
+    },
+    /// Read the 16 bit and 16 bit counter configuration, 16+16+2 bits to read (5 bytes)
+    /// This corresponds to counter configuration `0b110`.
+    register ReadCntCfg6 {
+        address: 8,
+        address-overlap: allow,
+        access: RO,
+        fields: fieldset _ {
+            size-bytes: 5,
+            byte-order: BE,
+        
+            /// Counter 1 value, bits 16-32
+            field cnt1 39:24 -> int,
+            /// Counter 0 value, bits 0-16
+            field cnt0 23:8 -> int,
+            field nerr 7 -> bool,
+            field nwarn 6 -> bool,
+        },
+    },
+    /// Read the 3 x 16 bit counter configuration, 16+16+16+2 bits to read (7 bytes)
+    /// This corresponds to counter configuration `0b111`.
+    register ReadCntCfg7 {
+        address: 8,
+        address-overlap: allow,
+        access: RO,
+        fields: fieldset _ {
+            size-bytes: 8,
+            byte-order: BE,
+        
+            /// Counter 2 value, bits 32-48
+            field cnt2 55:40 -> int,
+            /// Counter 1 value, bits 16-32
+            field cnt1 39:24 -> int,
+            /// Counter 0 value, bits 0-16
+            field cnt0 23:8 -> int,
+            field nerr 7 -> bool,
+            field nwarn 6 -> bool,
+        },
+    },
+    /// Read the references registers 24 bits.
+    /// TODO: It is unclear if this works, as I assume the address for reading is
+    /// auto-incremented as when reading the data. This should be tested once the actual
+    /// hardware setup is available with an encoder connected.
+    register ReferenceCounter {
+        address: 16,
+        access: RO,
+        fields: fieldset _ {
+            size-bytes: 3,
+            byte-order: BE,
+        
+            field value 23:0 -> int,
+        },
+    },
+    /// Instruction byte (write only)
+    /// Allows writing of the instruction bytes. When one of these bits is set to 1, the
+    /// corresponding instruction is executed and the bit set back to zero, except in the
+    /// case of `Act0` and `Act1`, which remain set to the written value.
+    register InstructionByte {
+        address: 48,
+        access: WO,
+        fields: fieldset _ {
+            size-bytes: 1,
+        
+            /// Reset counter 0
+            field AbRes0 0 -> bool,
+            /// Reset counter 1
+            field AbRes1 1 -> bool,
+            /// Reset counter 2
+            field AbRes2 2 -> bool,
+            /// Enable zero codification
+            field ZCEn 3 -> bool,
+            /// Load touch probe 2 with touch probe 1 value and touch probe 1 with AB counter value
+            field TP 4 -> bool,
+            /// Set actuator pin 0 to VDD if enabled, otherwise to GND
+            field Act0 5 -> bool,
+            /// Set actuator pin 1 to VDD if enabled, otherwise to GND
+            field Act1 6 -> bool,
+        },
+    },
+    /// `Status0`: Status of counter 0
+    /// Returns the status of counter 0 plus several other status bits. See also `Status1` and
+    /// `Status2` for the other counters and more status bits.
+    register Status0 {
+        address: 72,
+        access: RO,
+        fields: fieldset _ {
+            size-bytes: 1,
+        
+            /// Touch probe registers TP1/TP2 loaded or new values loaded.
+            field TpVal 0 -> bool,
+            /// Overflow of the reference counter. There were too many edges detected between two
+            /// index pulses. The value of the UPD and REF registers is not valid.
+            field OvfRef 1 -> bool,
+            /// UPD value: Every time that the UPD register is loaded, the status bit UpDval is set
+            /// to 1 until the status bit UPD or the register UPD is read out.
+            field UpdVal 2 -> bool,
+            /// Status bit that indicates that the reference value was loaded in the REF register
+            /// after the "Zero codification" process. After power-on, this bit remains at 0 until
+            /// the second different index pulse.
+            field RVal 3 -> bool,
+            /// Power down: If VDD reaches the power off supply level, the iC-MD is reset and the
+            /// RAM initialized to the default value. This status bit indicates that this
+            /// initialization has taken place.
+            field PDwn 4 -> bool,
+            /// Zero of counter 0 reached: The counter has reached the zero value.
+            field Zero0 5 -> bool,
+            /// Overflow of counter 0.
+            field Ovf0 6 -> bool,
+            /// AB input decodification error for counter 0. It occurs if the counting frequency is
+            /// too high or if two incrmeental edges are too close together.
+            field AbErr0 7 -> bool,
+        },
+    },
+    /// `Status1`: Status of counter 1
+    /// Returns the status of counter 1 plus several other status bits. See also `Status0` and
+    /// `Status2` for the other counters and more status bits.
+    register Status1 {
+        address: 73,
+        access: RO,
+        fields: fieldset _ {
+            size-bytes: 1,
+        
+            /// TPS signal: Status of the signal on input pin TPI.
+            field Tps 0 -> bool,
+            /// Communication collision took place.
+            field ComCol 1 -> bool,
+            /// ExtWarn: Status bit that indicates if the `NWARN` pin was either pulled-down from
+            /// outside or set to 0 from inside (an internal masked error has occured).
+            field ExtWarn 2 -> bool,
+            /// ExtErr: Status bit that indicates if the `NERR` pin was either pulled-down from
+            /// outside or set to 0 from inside (an internal masked error has occured).
+            field ExtErr 3 -> bool,
+            /// Power down: If VDD reaches the power off supply level, the iC-MD is reset and the
+            /// RAM initialized to the default value. This status bit indicates that this
+            /// initialization has taken place.
+            field PDwn 4 -> bool,
+            /// Zero of counter 1 reached: The counter has reached the zero value.
+            field Zero1 5 -> bool,
+            /// Overflow of counter 1.
+            field Ovf1 6 -> bool,
+            /// AB input decodification error for counter 1. It occurs if the counting frequency is
+            /// too high or if two incrmeental edges are too close together.
+            field AbErr1 7 -> bool,
+        },
+    },
+    /// `Status2`: Status of counter 2
+    /// Returns the status of counter 2 plus several other status bits. See also `Status0` and
+    /// `Status1` for the other counters and more status bits.
+    register Status2 {
+        address: 74,
+        access: RO,
+        fields: fieldset _ {
+            size-bytes: 1,
+        
+            /// EnSSI: Status of the SSI pin. If closed, the SSI interface is not enabled and the
+            /// status bit is 0. Otherwise, if SSI is enabled (SLI pin is open), the status bit
+            /// returns 1.
+            field EnSsi 0 -> bool,
+            /// Communication collision took place.
+            field ComCol 1 -> bool,
+            /// ExtWarn: Status bit that indicates if the `NWARN` pin was either pulled-down from
+            /// outside or set to 0 from inside (an internal masked error has occured).
+            field ExtWarn 2 -> bool,
+            /// ExtErr: Status bit that indicates if the `NERR` pin was either pulled-down from
+            /// outside or set to 0 from inside (an internal masked error has occured).
+            field ExtErr 3 -> bool,
+            /// Power down: If VDD reaches the power off supply level, the iC-MD is reset and the
+            /// RAM initialized to the default value. This status bit indicates that this
+            /// initialization has taken place.
+            field PDwn 4 -> bool,
+            /// Zero of counter 1 reached: The counter has reached the zero value.
+            field Zero2 5 -> bool,
+            /// Overflow of counter 1.
+            field Ovf2 6 -> bool,
+            /// AB input decodification error for counter 1. It occurs if the counting frequency is
+            /// too high or if two incrmeental edges are too close together.
+            field AbErr2 7 -> bool,
+        },
+    },
+}
