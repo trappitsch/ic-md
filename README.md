@@ -7,6 +7,7 @@ The driver is designed to use the SPI interface and is built on top of
 and making use of the excellent
 [device_driver](https://docs.rs/device-driver/latest/device_driver/)
 toolkit.
+See the [docs](https://docs.rs/ic-md/latest/ic_md/) for detailed documentation.
 
 More information about the iC-MD counter can be found
 [here](https://www.ichaus.de/product/iC-MD/).
