@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["EnumGenerationStyle","EnumValue","Object","UniqueId"],"struct":["Block","Buffer","Command","Device","DeviceConfig","Enum","EnumVariant","Extern","Field","FieldSet","Manifest","ObjectIter","ObjectIterMut","Register"],"trait":["Empty","LendingIterator","Unique"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Error","RuntimeType"],"struct":["All","Identifier","IdentifierRef","Operation","Type"],"trait":["IdentifierType"]};

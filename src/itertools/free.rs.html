@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/itertools-0.14.0/src/free.rs`."><title>free.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-84e720fa.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.89.0 (29483883e 2025-08-04)" data-channel="1.89.0" data-search-js="search-92309212.js" data-settings-js="settings-5514c975.js" ><script src="../../static.files/storage-4e99c027.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fd3af306.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">itertools/</div>free.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Free functions that create iterator adaptors or call iterator methods.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/itertools-0.15.0/src/free.rs`."><title>free.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.1 (48a229cea 2026-09-01)" data-channel="1.98.1" data-search-js="search-9944d736.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-417ebf0a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1><div class="sub-heading">itertools/</div>free.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Free functions that create iterator adaptors or call iterator methods.
 <a href=#2 id=2 data-nosnippet>2</a>//!
 <a href=#3 id=3 data-nosnippet>3</a>//! The benefit of free functions is that they accept any [`IntoIterator`] as
 <a href=#4 id=4 data-nosnippet>4</a>//! argument, so the resulting code may be easier to read.
@@ -119,7 +119,7 @@
 <a href=#119 id=119 data-nosnippet>119</a>/// for (a, b) in zip(&amp;[1, 2, 3, 4, 5], &amp;['a', 'b', 'c']) {
 <a href=#120 id=120 data-nosnippet>120</a>///     result.push((*a, *b));
 <a href=#121 id=121 data-nosnippet>121</a>/// }
-<a href=#122 id=122 data-nosnippet>122</a>/// assert_eq!(result, vec![(1, 'a'),(2, 'b'),(3, 'c')]);
+<a href=#122 id=122 data-nosnippet>122</a>/// assert_eq!(result, vec![(1, 'a'), (2, 'b'), (3, 'c')]);
 <a href=#123 id=123 data-nosnippet>123</a>/// ```
 <a href=#124 id=124 data-nosnippet>124</a></span><span class="attr">#[deprecated(
 <a href=#125 id=125 data-nosnippet>125</a>    note = <span class="string">"Use [std::iter::zip](https://doc.rust-lang.org/std/iter/fn.zip.html) instead"</span>,
@@ -141,7 +141,7 @@
 <a href=#141 id=141 data-nosnippet>141</a>/// ```
 <a href=#142 id=142 data-nosnippet>142</a>/// use itertools::chain;
 <a href=#143 id=143 data-nosnippet>143</a>///
-<a href=#144 id=144 data-nosnippet>144</a>/// let mut result:Vec&lt;i32&gt; = Vec::new();
+<a href=#144 id=144 data-nosnippet>144</a>/// let mut result: Vec&lt;i32&gt; = Vec::new();
 <a href=#145 id=145 data-nosnippet>145</a>///
 <a href=#146 id=146 data-nosnippet>146</a>/// for element in chain(&amp;[1, 2, 3], &amp;[4]) {
 <a href=#147 id=147 data-nosnippet>147</a>///     result.push(*element);
@@ -284,8 +284,8 @@
 <a href=#284 id=284 data-nosnippet>284</a>/// [`IntoIterator`] enabled version of [`Itertools::sorted`].
 <a href=#285 id=285 data-nosnippet>285</a>///
 <a href=#286 id=286 data-nosnippet>286</a>/// ```
-<a href=#287 id=287 data-nosnippet>287</a>/// use itertools::sorted;
-<a href=#288 id=288 data-nosnippet>288</a>/// use itertools::assert_equal;
+<a href=#287 id=287 data-nosnippet>287</a>/// use itertools::assert_equal;
+<a href=#288 id=288 data-nosnippet>288</a>/// use itertools::sorted;
 <a href=#289 id=289 data-nosnippet>289</a>///
 <a href=#290 id=290 data-nosnippet>290</a>/// assert_equal(sorted("rust".chars()), "rstu".chars());
 <a href=#291 id=291 data-nosnippet>291</a>/// ```
@@ -304,8 +304,8 @@
 <a href=#304 id=304 data-nosnippet>304</a>/// [`IntoIterator`] enabled version of [`Itertools::sorted_unstable`].
 <a href=#305 id=305 data-nosnippet>305</a>///
 <a href=#306 id=306 data-nosnippet>306</a>/// ```
-<a href=#307 id=307 data-nosnippet>307</a>/// use itertools::sorted_unstable;
-<a href=#308 id=308 data-nosnippet>308</a>/// use itertools::assert_equal;
+<a href=#307 id=307 data-nosnippet>307</a>/// use itertools::assert_equal;
+<a href=#308 id=308 data-nosnippet>308</a>/// use itertools::sorted_unstable;
 <a href=#309 id=309 data-nosnippet>309</a>///
 <a href=#310 id=310 data-nosnippet>310</a>/// assert_equal(sorted_unstable("rust".chars()), "rstu".chars());
 <a href=#311 id=311 data-nosnippet>311</a>/// ```
@@ -316,4 +316,5 @@
 <a href=#316 id=316 data-nosnippet>316</a>    I::Item: Ord,
 <a href=#317 id=317 data-nosnippet>317</a>{
 <a href=#318 id=318 data-nosnippet>318</a>    iterable.into_iter().sorted_unstable()
-<a href=#319 id=319 data-nosnippet>319</a>}</code></pre></div></section></main></body></html>
+<a href=#319 id=319 data-nosnippet>319</a>}
+</code></pre></div></section></main></body></html>

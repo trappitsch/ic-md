@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["select",1],["select_ref",1]]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["ident","is_whitespace","keyword"],"struct":["Grapheme","Graphemes","GraphemesIter"]};

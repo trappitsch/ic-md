@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Expression","RepeatSource","TypeConversion"],"fn":["base_type","byte_array","doc_comment","ident","integer","node","node_body","num","parse","property","range","repeat","simple_expression","type_specifier"],"struct":["Ast","Ident","Node","Property","Repeat","TypeSpecifier"],"type":["InputType","RichErr","RichExtra"]};

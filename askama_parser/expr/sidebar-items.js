@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Expr"],"struct":["Attr","Filter","TyGenerics"]};
+window.SIDEBAR_ITEMS = {"enum":["Expr","TyGenericsKind"],"struct":["AssociatedItem","BinOp","Call","ExprStruct","ExprStructField","Filter","PathComponent","Range","TyGenerics"]};

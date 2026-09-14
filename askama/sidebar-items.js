@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["NO_VALUES"],"derive":["Template"],"enum":["Error"],"fn":["get_value"],"mod":["filters"],"trait":["DynTemplate","FastWritable","PrimitiveType","Template","Value","Values"],"type":["Result"]};
+window.SIDEBAR_ITEMS = {"attr":["filter_fn"],"constant":["NO_VALUES"],"derive":["Template"],"enum":["Error"],"fn":["get_value"],"mod":["filters"],"trait":["DynTemplate","FastWritable","PrimitiveType","Template","Value","Values"],"type":["Result"]};

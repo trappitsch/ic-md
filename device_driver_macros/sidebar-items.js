@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["create_device"]};
+window.SIDEBAR_ITEMS = {"macro":["compile"]};

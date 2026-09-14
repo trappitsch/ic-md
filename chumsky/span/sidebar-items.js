@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["SimpleSpan","Spanned"],"trait":["Span","SpanWrap","WrappingSpan"],"type":["SimpleSpanned"]};

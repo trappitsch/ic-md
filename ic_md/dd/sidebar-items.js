@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["field_sets"],"struct":["Device","DeviceError","DeviceInterface"]};
+window.SIDEBAR_ITEMS = {"struct":["CounterConfiguration","Device","DeviceError","DeviceInterface","InstructionByte","ReadCntCfg0","ReadCntCfg1","ReadCntCfg2","ReadCntCfg3","ReadCntCfg4","ReadCntCfg5","ReadCntCfg6","ReadCntCfg7","ReferenceCounter","Status0","Status1","Status2"]};

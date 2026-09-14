@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Access","AddressMode","BaseType","ByteOrder","Integer","NodeType","RepeatSource","ResetValue"],"struct":["AddressRange","Repeat","TypeConversion"],"trait":["VariantNames"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CodegenTarget","TimingsMode"],"fn":["compile"],"struct":["CompileOptions","GeneralOptions","Metadata","MirOptions","RustCodegenOptions"]};
