@@ -43,6 +43,7 @@ All examples are listed in order of potential interest/complexity.
 ### High-level driver examples
 
 - `counter_readout`: Reads out a counter frequently and prints result to `STDOUT`.
+- `counter_readout_async`: Same as the last example, but with the `async` interface.
 
 [device-driver]: https://device-driver.com/
 [embedded-hal]: https://docs.rs/embedded-hal/latest/embedded_hal/

@@ -101,6 +101,8 @@ pub use hl_blocking::IcMd;
 
 #[cfg(feature = "async")]
 pub mod hl_async;
+#[cfg(feature = "async")]
+pub use hl_async::IcMdAsync;
 
 pub mod configs;
 pub mod dd;

@@ -12,10 +12,10 @@ repository = "https://github.com/trappitsch/ic-md"
 defmt = { version = "1", optional = true }
 device-driver = { version = "2", features = ["macros"] }
 embedded-hal = "1"
-embedded-hal-async = "1"
+embedded-hal-async = { version = "1", optional = true }
 
 [features]
-async = []
+async = ["dep:embedded-hal-async"]
 blocking = []
 default = ["blocking"]
 defmt = ["dep:defmt"]
@@ -23,10 +23,15 @@ defmt = ["dep:defmt"]
 [dev-dependencies]
 embedded-hal-mock = "0.11.1"
 pico-de-gallo-hal = "0.7.0"
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
 
 [[example]]
 name = "counter_readout"
 required-features = ["blocking"]
+
+[[example]]
+name = "counter_readout_async"
+required-features = ["async"]
 
 [[test]]
 name = "configure_counter"
