@@ -1,22 +1,15 @@
 # iC-MD Rust driver
 
-This is a pure Rust implementation of a driver for the iC Haus iC-MD 
-48 bit quadrature counter. 
-The driver is designed to use the SPI interface and is built on top of 
-[embedded-hal](https://docs.rs/embedded-hal/latest/embedded_hal/) traits 
-and making use of the excellent 
+This is a pure Rust implementation of a driver for the iC Haus iC-MD
+48 bit quadrature counter.
+The driver is designed to use the SPI interface and is built on top of
+[embedded-hal](https://docs.rs/embedded-hal/latest/embedded_hal/) traits
+and making use of the excellent
 [device_driver](https://docs.rs/device-driver/latest/device_driver/)
 toolkit.
 
-More information about the iC-MD counter can be found 
+More information about the iC-MD counter can be found
 [here](https://www.ichaus.de/product/iC-MD/).
-
-**This driver is not yet complete and is currently under development.**
-
-Currently, the driver is only available on GitHub and is not yet published to crates.io.
-Thus, the documentation can for now also only be found 
-[here on GitHub](https://trappitsch.github.io/ic-md/ic_md/).
-
 
 ## License
 
