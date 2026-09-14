@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["configs","dd"],"struct":["IcMd"]};
+window.SIDEBAR_ITEMS = {"mod":["configs","dd","hl_blocking"]};
