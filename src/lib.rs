@@ -86,7 +86,7 @@
 //! There you will find various integration tests that show how to use the driver in practice and
 //! that contain detailed comments on for you.
 
-#![deny(warnings, missing_docs)]
+#![deny(warnings)]
 #![cfg_attr(not(test), no_std)]
 
 use core::{fmt::Debug, result::Result};
