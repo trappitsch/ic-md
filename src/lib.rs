@@ -1,17 +1,6 @@
 //! Driver for the iC-MD quadrature counter.
 //! Built fully in Rust, uses [embedded_hal] and [device_driver].
 //!
-//! <div class="warning">
-//!
-//! **Important Note:**
-//!
-//! This driver is in active development and not yet feature complete. Please see the section below
-//! on Limitations for more details. This driver is currently only available via `git`.
-//!
-//! Any comments are welcome!
-//!
-//! </div>
-//!
 //! # Introduction
 //!
 //! The `IcMd` struct provides a high-level interface to interact with the iC-MD quadrature
@@ -24,7 +13,7 @@
 //!
 //! # Limitations
 //!
-//! The following features are currently only accessible via the low-level interface:
+//! The following capabilities are currently only accessible via the low-level interface:
 //!
 //! - Reference register readout: It is unclear if this currently works, see code comment.
 //!
@@ -81,6 +70,11 @@
 //! # // Check that all our expectations are met - testing only
 //! # spi_device.done();
 //! ```
+//!
+//! # Crate features
+//!
+//! By default, the blocking interface is activated (feature "blocking").
+//! However, an async interface is also available when you activate the "async" feature.
 //!
 //! # Further help
 //!

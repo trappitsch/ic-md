@@ -1,6 +1,6 @@
-//! This module implements the async high-level driver.
+//! This module implements the async high-level driver ("async" feature).
 //!
-//! It is available on the "async" feature.
+//! To use this module, the "async" feature has to be activated.
 
 use embedded_hal_async::spi::SpiDevice;
 
@@ -11,8 +11,11 @@ use crate::{
 };
 
 /// The main driver struct of the crate representing the iC-MD quadrature counter.
+/// This high-level driver provides access to an asynchronous driver interface.
 /// You can also access the underlying device driver directly via the `device` field.
 /// You are then yourself responsible for reading the correct counter configurations.
+///
+/// Note that the "async" feature must be activated.
 #[derive(Debug)]
 pub struct IcMdAsync<Spi> {
     /// Provides acces to the underlying device driver.

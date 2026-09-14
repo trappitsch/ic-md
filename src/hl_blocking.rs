@@ -1,6 +1,6 @@
 //! This module implements the blocking high-level driver.
 //!
-//! It is available on the "blocking" feature, which is activated by default.
+//! This module is available on the "blocking" feature, which is activated by default.
 
 use embedded_hal::spi::SpiDevice;
 
@@ -13,6 +13,8 @@ use crate::{
 /// The main driver struct of the crate representing the iC-MD quadrature counter.
 /// You can also access the underlying device driver directly via the `device` field.
 /// You are then yourself responsible for reading the correct counter configurations.
+///
+/// Note that the "blocking" feature must be activated (which it is by default).
 #[derive(Debug)]
 pub struct IcMd<Spi> {
     /// Provides acces to the underlying device driver.

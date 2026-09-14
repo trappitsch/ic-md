@@ -19,6 +19,7 @@ async = ["dep:embedded-hal-async"]
 blocking = []
 default = ["blocking"]
 defmt = ["dep:defmt"]
+docs = ["async", "blocking"]
 
 [dev-dependencies]
 embedded-hal-mock = "0.11.1"
@@ -48,3 +49,6 @@ required-features = ["blocking"]
 [[test]]
 name = "status"
 required-features = ["blocking"]
+
+[package.metadata.docs.rs]
+features = ["docs"]
